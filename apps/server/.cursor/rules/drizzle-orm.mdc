@@ -1,0 +1,73 @@
+---
+description: This file describes how to work with drizzle-orm in the server app.
+globs: src/infrastructure/db/postgres/**/*.ts
+alwaysApply: true
+---
+
+# Drizzle ORM conventions
+
+## Drizzle ORM usage rules
+
+- **Always define a schema before a repository**
+  - Every table accessed by a repository must have a Drizzle schema in `infrastructure/db/postgres/schema/`.
+
+- **Use the Drizzle query builder, not raw SQL**
+  - Do not use `db.execute(sql\`...\`)` in repositories unless you really need.
+  - Prefer `.select().from(table).where(...)`, `.insert(table).values(...)`, `.update(table).set(...)`, `.delete(table)...`.
+  - Use helpers from `drizzle-orm` like `eq`, `inArray`, `and`, `or`, `lt`, `asc`, etc. instead of handwritten SQL strings.
+
+- **Use typed row inference**
+  - When mapping rows to domain entities, use `typeof table.$inferSelect` as the row type:
+    - `const mapRow = (row: typeof users.$inferSelect) => User.create({ ... })`.
+  - This keeps repository mappings in sync with the schema.
+
+- **Keep domain mapping in repositories**
+  - Repositories should:
+    - Read/write database rows via Drizzle.
+    - Map rows to domain entities using domain factories like `User.create(...)`.
+  - Do not expose Drizzle types or query builders outside repositories.
+
+## Casing and column names
+
+- **Do not manually snake_case column names.**
+  - We configure Drizzle with `drizzleCommonConfig.casing = "snake_case"` (see `db.config.ts`).
+  - Define columns using **camelCase property names**, and let Drizzle handle the actual SQL column names.
+  - Examples:
+    - ✅ `userId: integer().notNull()` (becomes `user_id` in SQL)
+    - ❌ `userId: integer("user_id")...`
+
+## Shared helpers
+
+- **Identity primary key**
+  - Use the shared `identity()` helper for `id` columns:
+    - `id: identity(),`
+  - The helper lives in `schema.utils.ts` and should be reused across tables.
+
+- **Timestamps**
+  - Use the shared `timestamps()` helper for `createdAt` / `updatedAt`:
+    - `...timestamps(),`
+  - Do **not** redefine `createdAt` / `updatedAt` manually in individual schemas unless you have a special case.
+
+## Foreign keys
+
+- Rely on the casing config to produce `user_id` in SQL instead of setting the column name explicitly.
+- When a column represents a relation (e.g. `userId`, `productId`, `categoryId`), define it with an explicit foreign key:
+  - `userId: integer().notNull().references(() => users.id),`
+  - Do not leave relational ids as plain `integer()` without `.references(...)`.
+  - This rule doesn't work for self-reference
+  - Add `{ onDelete: "cascade" }` only if child do not make sence without a parent. do not delete important data like: logs, invoices, payments, analytic events (just examples). those data can exists without a user for example
+
+## Column types
+
+- **Prefer `varchar()` for short text, `text()` only for large text**
+  - Use `varchar()` for small fields like `title`, `name`, `hint`, `shortDescription`, etc.
+  - Use `text()` for large content like `description`, `commentContent`, or other long free-form text.
+- **Model enums/unions with typed `varchar`**
+  - When an entity requires an enum/union-like field, use `varchar({ enum: ["value1", "value2"] })` instead of a bare `varchar()`.
+
+## Imports and barrel
+
+- Import tables from the **schema barrel**:
+  - `import { users, refreshTokens } from "@infrastructure/db/postgres/schema";`
+- Keep individual schema files focused on table definitions and types; do not add business logic here.
+

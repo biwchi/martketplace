@@ -1,0 +1,86 @@
+---
+description: How to model new domain entities (structure, repositories, value objects)
+globs: src/domain/**/*.ts
+alwaysApply: false
+---
+
+# Domain entities
+
+## Where to put a new entity
+
+- Place each entity in its own folder under `src/domain`, e.g. `src/domain/user`, `src/domain/product`.
+- Keep domain code **pure**: no HTTP, database, or framework imports in `src/domain`.
+
+## Entity file (`<entity>.model.ts`)
+
+- Define the main entity in `<entity>.model.ts`, using a **class** for behavior and invariants.
+- Prefer **constructor injection** of required fields and a static `create` factory for readability and validation.
+- Use domain value objects (e.g. `PhoneNumber`) and domain types only – no persistence-layer types.
+
+Example (`user.model.ts`):
+
+```ts
+export class User {
+  constructor(
+    public id: number,
+    public phone: PhoneNumber,
+    public firstName?: string,
+    public username?: string,
+    public lastName?: string,
+  ) {}
+
+  static create(params: {
+    id: number;
+    phone: PhoneNumber;
+    firstName?: string;
+    username?: string;
+    lastName?: string;
+  }): User {
+    return new User(
+      params.id,
+      params.phone,
+      params.firstName,
+      params.username,
+      params.lastName,
+    );
+  }
+}
+```
+
+Guidelines:
+
+- Put **domain behavior** (methods) on the entity class; avoid anemic models that only hold data.
+- Validate invariants inside the entity (`create` or methods), not in repositories or controllers.
+- Do not include serialization, database, or HTTP concerns in the entity.
+
+## Repository interface (`<entity>.repository.ts`)
+
+- Define the domain repository **interface** next to the entity in `<entity>.repository.ts`.
+- The repository is a **port**: it exposes operations the domain/application needs, without any implementation details.
+- Each repository file must also export a **DI token** constant that will be used with Inversify.
+
+Example (`user.repository.ts`):
+
+```ts
+export interface UserRepository {
+  findById(id: number): Promise<User | null>;
+  findByPhone(phone: PhoneNumber): Promise<User | null>;
+  create(user: User): Promise<User>;
+}
+
+export const USER_REPOSITORY_TOKEN = Symbol.for("UserRepository");
+```
+
+Guidelines:
+
+- Use domain types (`User`, `PhoneNumber`, IDs, value objects) in method signatures.
+- Do not expose ORM-specific types or query builders.
+- Keep method set small and use use-case language (e.g. `findByPhone`, `create`, `update`), not generic CRUD when more specific names make intent clearer.
+- Name tokens in **UPPER_SNAKE_CASE** with a `_TOKEN` suffix and use `Symbol.for("<InterfaceName>")` as the value.
+
+## Other domain files for an entity
+
+- **Value objects**: put entity-specific value objects in the same folder (e.g. `phone-number.model.ts`), or in a shared `domain/common` folder if reused broadly.
+- **Domain errors**: define entity-specific domain errors in the same folder (e.g. `user.errors.ts`) or a shared domain errors module.
+- Keep all these files domain-only and reusable by the application layer, without depending on infrastructure.
+

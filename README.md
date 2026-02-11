@@ -1,135 +1,276 @@
-# Turborepo starter
+# Marketplace MVP (Wildberries / Ozon–like)
 
-This Turborepo starter is maintained by the Turborepo core team.
+A high-performance marketplace prototype inspired by large e-commerce platforms such as Wildberries, Ozon, and Amazon.
 
-## Using this example
+The goal of this project is to explore **real-world marketplace architecture**, focusing on:
+- fast product search with autocomplete
+- scalable catalog and filtering
+- SSR for SEO
+- personalized recommendations (even for anonymous users)
+- multi-vendor marketplace design (buyers & sellers)
 
-Run the following command:
+This is an **architecture-first MVP**, not a demo shop.
 
-```sh
-npx create-turbo@latest
-```
+---
 
-## What's inside?
+## Goals
 
-This Turborepo includes the following packages/apps:
+- ⚡ Fast server responses
+- ⚡ Instant search & autocomplete
+- 🧠 SEO-friendly pages using SSR
+- 🧩 Flexible product attributes (EAV)
+- 👤 Support anonymous and authenticated users
+- 🏪 Support sellers and multi-vendor products
+- 🔁 Event-based recommendation system
+- 📱 Future-ready for mobile applications
 
-### Apps and Packages
+---
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+## Applications Overview
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+The project consists of **two separate web applications** sharing the same backend and database.
 
-### Utilities
+### Buyer Application
+- Public-facing marketplace
+- SEO-optimized
+- SSR-enabled
+- Used by buyers and anonymous visitors
 
-This Turborepo has some additional tools already setup for you:
+Example:
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
 
-### Build
+example.com
 
-To build all apps and packages, run the following command:
 
-```
-cd my-turborepo
+### Seller Application (Admin Panel)
+- Authenticated-only
+- No SEO requirements
+- Used by sellers to manage products
+- Separate UI and UX
 
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
+Example:
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+seller.example.com
 
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+---
 
-### Develop
+## Core Features (Buyer Application)
 
-To develop all apps and packages, run the following command:
+### Catalog & Navigation
+- Category tree with unlimited nesting
+- Category-specific behavior (e.g. size grid for clothes)
+- Product listing pages with sorting and filtering
+- Infinite scroll / pagination
 
-```
-cd my-turborepo
+---
 
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
+### Product Pages
+- Image gallery
+- Price and discounts
+- Add to cart
+- Add to favorites (authenticated users)
+- Dynamic characteristics (EAV model)
+- Product description
+- User reviews
+- Related / recommended products
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
+---
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+### Search System
 
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+#### Autocomplete (Search Hints)
+- Instant hints while typing
+- Typo-tolerant
+- Intent-based suggestions:
+  - `jeans`
+  - `jeans for men`
+  - `baggy jeans`
+- Category- and attribute-aware
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+#### Final Search
+- Full-text product search
+- Filtering by:
+  - price
+  - rating
+  - attributes (color, size, material, etc.)
+- Sorting and pagination
 
-### Remote Caching
+---
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+## User Types
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+### Anonymous Users
+- Can browse products and categories
+- Can search with autocomplete
+- Receive personalized recommendations
+- Identified by `visitor_id`
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+### Authenticated Buyers
+- All anonymous features
+- Add to cart
+- Add to favorites
+- Leave reviews
+- Improved personalized recommendations
 
-```
-cd my-turborepo
+### Sellers
+- Authenticated users with seller role
+- Access to seller admin panel
+- Can manage their own products
+- Can view product-level analytics (later)
 
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
+A single user account may act as both **buyer and seller**.
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
+---
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+## Visitor Identity & Personalization
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+- Every visitor (even anonymous) has a `visitor_id`
+- `visitor_id` is stored:
+  - Web → HttpOnly cookie
+  - Mobile apps → secure storage
+- User behavior is tracked as events:
+  - product views
+  - searches
+  - category views
+- When a user logs in, anonymous behavior is merged with their account
 
-```
-# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
+> `visitor_id` is **not authentication** and is never trusted for permissions.
 
-# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
+---
 
-## Useful Links
+## Recommendation System (MVP)
 
-Learn more about the power of Turborepo:
+Implemented without machine learning.
 
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+### Techniques:
+- Recently viewed products
+- Products from the same category
+- "Users who viewed X also viewed Y"
+- Popular products per category
+
+### Data source:
+- Event-based tracking
+- Precomputed and cached results
+- Supports both anonymous and authenticated users
+
+---
+
+## Seller Admin Panel (MVP Scope)
+
+### Product Management
+- Create and edit products
+- Assign category
+- Manage prices
+- Upload images
+- Define attributes based on category (EAV)
+- Publish / unpublish products
+
+### Product Lifecycle
+- Draft → not visible to buyers
+- Active → searchable and indexed
+- Disabled → removed from search
+
+> Only active products are indexed in search and recommendations.
+
+---
+
+## Data Model Overview
+
+### Main Entities
+- User
+- Seller
+- Visitor
+- Category
+- Product
+- Product Attributes (EAV)
+- Reviews
+- Favorites
+- Cart
+- User Events
+
+### Attributes (EAV)
+- Supports different data types:
+  - string
+  - number
+  - color
+  - select
+  - boolean
+- Attributes are category-specific
+- Used for filtering and display
+
+---
+
+## Tech Stack
+
+### Frontend
+- TanStack Start / Next
+- SSR / Hybrid rendering
+- Vite
+- Optimized images and hydration
+
+### Backend
+- Bun
+- TypeScript
+- Elysia
+- REST API
+
+### Database
+- PostgreSQL
+- JSONB for flexible attributes
+- Indexed for fast filtering
+
+### Search
+- Meilisearch
+- Separate indexes for:
+  - products
+  - search hints (autocomplete)
+- Locale-aware indexing (per language)
+
+### Caching
+- Redis
+- Cached:
+  - category trees
+  - popular products
+  - recommendations
+  - search results
+
+### Infrastructure
+- Docker
+- CDN (Cloudflare)
+- Single backend for web and mobile clients
+
+---
+
+## Non-Goals (for MVP)
+
+The following features are intentionally out of scope:
+- Payments
+- Order fulfillment
+- Delivery tracking
+- Seller payouts
+- Moderation workflows
+- Advanced analytics
+
+These can be added later if needed.
+
+---
+
+## Project Philosophy
+
+- Read-heavy optimization
+- Cache-first thinking
+- Event-driven analytics
+- Minimal trust in client-side data
+- Clear separation of buyer and seller concerns
+- Scalable by design, simple by implementation
+
+---
+
+## Inspiration
+
+- Wildberries
+- Ozon
+- Amazon
+- Real-world e-commerce architectures

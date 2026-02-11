@@ -1,0 +1,16 @@
+---
+globs: *.ts,*.tsx
+alwaysApply: false
+---
+
+Never hard code magic numbers into my code, instead you should at least consolidate them to the top of the file, or create separate file like constants.ts
+
+Never allow a file to get over 1,000 lines of code. When a file is too large, please remember to split it into smaller modular components to make the codebase maintainble.
+
+Do not write boilerplate code, always try to create separate function or method for logic that is repeated somewhere else
+
+Always add public, private, static modifiers to class method or variables
+
+Do not create interface/types method "for the future". for example don't create such methods in repository inteface you only allow to create method that you can use somewhere. You can still create helper funciton if you want like isPersistedEntity because it is a shared/common function 
+
+Do not comment everything, place comments where they're needed, for example to explain how function need to be implemented if naming may not be enough. for example you to not to comment create, findByUserId or update method, those already very describable by there name

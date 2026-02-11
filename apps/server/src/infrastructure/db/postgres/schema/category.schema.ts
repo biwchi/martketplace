@@ -1,0 +1,13 @@
+import { integer, pgTable, text, varchar } from "drizzle-orm/pg-core";
+
+import { identity, timestamps } from "./schema.utils";
+
+export const categories = pgTable("categories", {
+  id: identity(),
+  name: varchar().notNull(),
+  slug: varchar().notNull(),
+  iconName: varchar().notNull(),
+  parentId: integer(),
+  ...timestamps(),
+});
+

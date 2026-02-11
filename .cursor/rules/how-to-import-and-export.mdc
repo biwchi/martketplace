@@ -1,0 +1,37 @@
+---
+description: Conventions for imports, type imports, and index.ts re-exports in this project
+globs: **/*.ts
+alwaysApply: false
+---
+
+# How to import and export
+
+- **Prefer explicit type imports**
+  - When importing only types, use `import type`:
+    - `import type { User, RefreshToken } from '@domain/auth';`
+  - If you use some static method of entity please do not forget to remove `import type`:
+    - `import { User, type RefreshToken } from '@domain/auth';`
+  - When mixing values and types from the same module, use the `type` modifier:
+    - `import { createUser, type UserCreatedEvent } from '@application/user';`
+
+- **Create barrel files (`index.ts`) for modules**
+  - For each domain or application module directory (e.g. `domain/user`, `domain/auth`, `application/auth`), create an `index.ts` that re‑exports the public API:
+    - `domain/user/index.ts` should re‑export all public entities from the user domain model.
+    - `application/auth/index.ts` should re‑export commands, queries, and other public auth application elements.
+
+- **Re-export subfolders via their own barrel, then `export *` from the parent**
+  - For subfolders that group related exports (e.g. `commands/`, `queries/`), add an `index.ts` in that subfolder that re‑exports its contents (e.g. `export * from "./login"; export * from "./logout";`).
+  - In the parent module barrel, re‑export the subfolder with `export * from "./commands"` (or the subfolder name) instead of listing each file.
+
+- **Import from module barrels, not deep paths**
+  - Avoid importing directly from deep paths like:
+    - `import { RefreshToken } from '@domain/auth/refresh-token.entity';` ❌
+  - Instead, import from the module root barrel:
+    - `import type { RefreshToken } from '@domain/auth';` ✅
+
+- **Avoid long import paths to specific files when a barrel exists**
+  - If an `index.ts` barrel is present (or should be added), prefer it over file-specific paths.
+  - When you notice imports like `@domain/.../some-file`, prefer to:
+    1. Export the symbol from the appropriate `index.ts`.
+    2. Update call sites to import from `@domain/...` (or `@application/...`) instead.
+

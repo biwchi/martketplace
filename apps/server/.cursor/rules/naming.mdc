@@ -1,0 +1,40 @@
+---
+description: Naming conventions for server app (files, entities, use cases)
+globs: src/**/*.ts
+alwaysApply: false
+---
+
+# Naming Conventions
+
+## File names
+
+- Use **kebab-case** for all `.ts` file names.
+
+## Entity-based files
+
+When a file is tied to an entity (e.g. user, product), name it as **`<entity>.<role>.ts`** where the suffix describes what the file represents:
+
+| Suffix | Meaning | Example |
+|--------|---------|---------|
+| `.entity.ts` | Domain entity | `user.entity.ts` |
+| `.dto.ts` | Data transfer object | `user.dto.ts` |
+| `.mapper.ts` | Mapping between layers | `user.mapper.ts` |
+| `.repository.ts` | Repository (port or impl) | `user.repository.ts` |
+| `.utils.ts` | Utility functions | `user.utils.ts` |
+
+Other suffixes (e.g. `.service.ts`, `.validator.ts`) follow the same pattern: **`<entity>.<role>.ts`**.
+
+## Commands and queries (use cases)
+
+- **Class name**: Use the use case name as-is (PascalCase). Examples: `GetProducts`, `CreateUser`, `UpdateOrder`.
+- **File name**: Derive from the class name in kebab-case.
+
+Examples:
+
+| Use case class | File name |
+|----------------|-----------|
+| `GetProducts` | `get-products.ts` |
+| `CreateUser` | `create-user.ts` |
+| `UpdateOrder` | `update-order.ts` |
+
+Do **not** add extra suffixes like `get-products.query.ts` unless the project explicitly uses that pattern; the folder (e.g. `queries/`, `commands/`) already indicates the role.

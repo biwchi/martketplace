@@ -1,5 +1,5 @@
 {
-  "name": "messenger-ai",
+  "name": "marketplace",
   "private": true,
   "scripts": {
     "build": "turbo run build",

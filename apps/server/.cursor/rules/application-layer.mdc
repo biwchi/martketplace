@@ -1,0 +1,34 @@
+---
+description: Application layer structure — feature-based use cases, DTOs, mappers
+globs: src/**/*.ts
+alwaysApply: false
+---
+
+# Application Layer
+
+## Structure
+
+Organize by **feature/domain**. One folder per feature under `application/`:
+
+- `application/auth/` – auth use cases and types
+- `application/products/` – product use cases and types
+- `application/<feature>/` – one folder per feature
+
+## Per-feature contents
+
+Inside each feature folder keep:
+
+| Item | Location / pattern |
+|------|--------------------|
+| **Commands** | `commands/<use-case>.ts` (e.g. `commands/create-user.ts`) |
+| **Queries** | `queries/<use-case>.ts` or `query/<use-case>.ts` |
+| **DTOs** | `<feature>.dto.ts` – input/output types for use cases |
+| **Mappers** | `<feature>.mapper.ts` – map between domain and DTOs |
+| **Ports** | In feature folder or `application/ports/` if shared |
+| **Other** | Any type, validator, or helper specific to this feature |
+
+## Rules
+
+- One feature folder = one cohesive set of use cases and related types.
+- DTOs and mappers stay in the same feature folder as the commands/queries that use them.
+- Do not put HTTP/transport schemas here; those live in infrastructure. Application exposes plain DTOs only.

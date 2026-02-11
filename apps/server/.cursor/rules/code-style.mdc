@@ -1,0 +1,64 @@
+---
+globs: *.ts,*.tsx
+alwaysApply: false
+---
+
+do not write "glue code" example of bad code: 
+```ts
+  const attrById = new Map(categoryAttributes.map((a) => [a.id, a]));
+  const requiredIds = new Set(
+    categoryAttributes.filter((a) => a.isRequired).map((a) => a.id),
+  );
+  const inputByAttrId = new Map<number, ProductAttributeInputDto>();
+  for (const a of inputAttributes) {
+    inputByAttrId.set(a.attributeId, a);
+  }
+
+  const missingRequiredAttributeIds: number[] = [];
+  for (const id of requiredIds) {
+    if (!inputByAttrId.has(id)) {
+      missingRequiredAttributeIds.push(id);
+    }
+  }
+```
+This code looks bad because it goes up to down without logical spaces that will separate code pieces. Here refactored version: 
+```ts
+  const attrById = new Map(categoryAttributes.map((a) => [a.id, a]));
+  const requiredIds = new Set(
+    categoryAttributes.filter((a) => a.isRequired).map((a) => a.id),
+  );
+
+  const inputByAttrId = new Map<number, ProductAttributeInputDto>();
+  const missingRequiredAttributeIds: number[] = [];
+
+  for (const a of inputAttributes) {
+    inputByAttrId.set(a.attributeId, a);
+  }
+
+  for (const id of requiredIds) {
+    if (!inputByAttrId.has(id)) {
+      missingRequiredAttributeIds.push(id);
+    }
+  }
+```
+
+if blocks should look like this: 
+```ts
+if (condition) {
+  logic
+}
+else if {
+  logic
+}
+else { 
+  logic
+}
+
+// GOOD
+if (condition) {
+  return
+}
+
+// NOT GOOD 
+if (condition) return
+```

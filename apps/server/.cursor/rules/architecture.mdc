@@ -1,0 +1,49 @@
+---
+description: Clean architecture and DI layer rules for the messenger server
+globs: src/**/*.ts
+alwaysApply: false
+---
+
+# Architecture (Clean Architecture + DI)
+
+## Layers and dependencies
+
+- **shared** – Cross-cutting only (e.g. `AppError`, generic types). No imports from domain, application, or infrastructure.
+- **domain** – Entities, repository interfaces (ports), domain errors, domain types. Imports only from `@domain/*` (e.g. `@domain/common/types`). Never import from `@application` or `@infrastructure`.
+- **application** – Use cases (commands/queries), DTOs, application ports (e.g. `Jwt`, `RealtimeGateway`, `VerificationCodeSender`, `UnitOfWork`). Imports only from `@domain/*` and `@application/*`. Never import from `@infrastructure`.
+- **infrastructure** – Implementations: HTTP (Elysia), DB (Drizzle), Redis, WS, services. Implements domain repository interfaces and application ports. May import from `@domain`, `@application`, `@shared`.
+- **bootstrap** – Composition root only. Wires infrastructure implementations to application use cases. The only place that imports from both `@application` and `@infrastructure`.
+
+## Dependency injection
+
+- Use the **Inversify** container for DI (`inversify` + `reflect-metadata`).
+- Use **constructor injection**: commands/queries and infrastructure services receive dependencies in the constructor.
+- **Ports (interfaces) and tokens**:
+  - Domain repository ports live in `domain/<feature>/*.repository.ts`.
+  - Each domain repository file also exports a **Symbol token** in `UPPER_SNAKE_CASE` with a `_TOKEN` suffix, e.g. `USER_REPOSITORY_TOKEN = Symbol.for("UserRepository")`.
+  - Application ports (e.g. `JwtPort`, `PasswordHasher`, `RefreshTokenHasher`, `CachePort`, `RealtimeGateway`, `UnitOfWork`, etc.) live in `application/<feature>/ports/*.port.ts` or `application/ports/*.port.ts` and export both the interface and a `*_PORT_TOKEN` Symbol (e.g. `JWT_PORT_TOKEN`, `CACHE_PORT_TOKEN`).
+- **Adapters (implementations)**:
+  - Implementations live in `infrastructure` (e.g. `infrastructure/db/postgres/repositories/*.repository.ts`, `infrastructure/db/redis/cache.adapter.ts`, `infrastructure/services/jwt.ts`).
+  - Adapters implement domain/application ports but do **not** re-export tokens; tokens are defined only in domain/application.
+- **Wiring (composition root)**:
+  - Only `bootstrap/container.ts` (and optionally `bootstrap/index.ts`) wires ports to adapters using a single Inversify container.
+  - Always bind using the exported tokens, e.g.:
+    - `container.bind<UserRepository>(USER_REPOSITORY_TOKEN).to(PgUserRepository).inSingletonScope();`
+    - `container.bind<JwtPort>(JWT_PORT_TOKEN).to(JwtAdapter).inSingletonScope();`
+    - `container.bind<CachePort>(CACHE_PORT_TOKEN).to(RedisCacheAdapter).inSingletonScope();`
+
+## Use cases and DTOs
+
+- **Commands** in `application/<feature>/commands/`; **queries** in `application/<feature>/queries/` or `query/`.
+- Use case **input/output DTOs** live in application (e.g. `application/chat/chat.dto.ts`). Use `neverthrow` Result types for use case results when errors are expected.
+- **HTTP/transport schemas** (e.g. Elysia `t.Object`) live in infrastructure (e.g. `infrastructure/http/controllers/<feature>/schema-dto.ts`). Controllers map between HTTP and application DTOs and call a single use case (command/query).
+
+## Path aliases
+
+Use these consistently: `@domain/*`, `@application/*`, `@shared/*`, `@infrastructure/*` (see `tsconfig.json` paths).
+
+## Rules to avoid
+
+- Do not import `@infrastructure` from `domain` or `application`.
+- Do not put business logic in controllers or repositories; keep it in domain (entities) or application (use cases).
+- Do not define Elysia/HTTP-specific types or schemas in application; keep them in infrastructure. Application exposes plain DTOs and ports.
