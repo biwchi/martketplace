@@ -6,11 +6,13 @@ import {
   isNull,
   lt,
   or,
+  sql,
 } from "drizzle-orm";
 
-import { ProductMetric, type ProductMetricRepository } from "@domain/product";
+import { ProductMetric, UserProductEvent, type ProductMetricRepository } from "@domain/product";
 import { db } from "@infrastructure/db/postgres/client";
 import { productMetrics } from "@infrastructure/db/postgres/schema";
+import type { ProductMetricIncrementableColumn } from '@domain/product/product-metric.entity';
 
 const mapRowToProductMetric = (
   row: typeof productMetrics.$inferSelect,
@@ -27,6 +29,19 @@ const mapRowToProductMetric = (
     popularityLastCalculatedAt: row.popularityLastCalculatedAt ?? undefined,
     popularityNextRecalcAt: row.popularityNextRecalcAt ?? undefined,
   });
+
+const mapProductMetricToValues = (metric: ProductMetric): typeof productMetrics.$inferInsert => ({
+  productId: metric.productId,
+  viewsCount: metric.viewsCount,
+  cartAddsCount: metric.cartAddsCount,
+  reviewsCount: metric.reviewsCount,
+  ratingSum: metric.ratingSum,
+  ratingCount: metric.ratingCount,
+  popularityScore: metric.popularityScore.toString(),
+  popularityDirty: metric.popularityDirty,
+  popularityLastCalculatedAt: metric.popularityLastCalculatedAt,
+  popularityNextRecalcAt: metric.popularityNextRecalcAt,
+});
 
 export class PgProductMetricRepository implements ProductMetricRepository {
   public async findByProducts(
@@ -67,20 +82,33 @@ export class PgProductMetricRepository implements ProductMetricRepository {
     return rows.map(mapRowToProductMetric);
   }
 
+  public async increment(productId: number, column: ProductMetricIncrementableColumn): Promise<void> {
+    await db.insert(productMetrics)
+      .values({
+        productId,
+        viewsCount: 0,
+        cartAddsCount: 0,
+        reviewsCount: 0,
+        ratingSum: 0,
+        ratingCount: 0,
+        popularityScore: "0",
+        popularityDirty: true,
+        [column]: 1
+      })
+      .onConflictDoUpdate({
+        target: [productMetrics.productId],
+        set: {
+          popularityDirty: true,
+          [column]: sql`${productMetrics[column]} + 1`
+        }
+      })
+  }
+
+
   public async update(metric: ProductMetric): Promise<void> {
     await db
       .update(productMetrics)
-      .set({
-        viewsCount: metric.viewsCount,
-        cartAddsCount: metric.cartAddsCount,
-        reviewsCount: metric.reviewsCount,
-        ratingSum: metric.ratingSum,
-        ratingCount: metric.ratingCount,
-        popularityScore: metric.popularityScore.toString(),
-        popularityDirty: metric.popularityDirty,
-        popularityLastCalculatedAt: metric.popularityLastCalculatedAt,
-        popularityNextRecalcAt: metric.popularityNextRecalcAt,
-      })
+      .set(mapProductMetricToValues(metric))
       .where(eq(productMetrics.productId, metric.productId));
   }
 }

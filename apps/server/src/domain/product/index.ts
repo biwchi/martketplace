@@ -1,17 +1,6 @@
-export {
-  Product,
-  type CreateProductProps,
-  type ProductAttributeValue,
-  type ProductProps,
-  type ProductStatus,
-  type UpdateProductProps,
-} from "./product.entity";
-export {
-  UserProductEvent,
-  type CreateUserProductEventProps,
-  type UserProductEventProps,
-  type UserProductEventType,
-} from "./user-product-event.entity";
+export * from "./product.entity";
+export * from "./user-product-event.entity";
+export * from "./product-metric.entity";
 export {
   ProductMetric,
   type CreateProductMetricProps,
@@ -27,3 +16,7 @@ export {
   type ProductAttributeValueRow,
   PRODUCT_ATTRIBUTE_VALUE_REPOSITORY_TOKEN,
 } from "./product-attribute-value.repository";
+export {
+  type UserProductEventRepository,
+  USER_PRODUCT_EVENT_REPOSITORY_TOKEN,
+} from "./user-product-event.repository";

@@ -189,7 +189,6 @@ export class GetPersonalFeed {
   private async getCandidates(
     visitor: Visitor,
     preferences: PreferencesProfile | null,
-    // TODO: Implement recent interested products attributes handling
   ): Promise<ProductWithMetric[]> {
     const userId = visitor.userId;
     const visitorId = visitor.visitorId;

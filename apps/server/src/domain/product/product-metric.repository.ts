@@ -1,4 +1,5 @@
-import type { ProductMetric } from "./product-metric.entity";
+import type { ProductMetricIncrementableColumn, ProductMetric } from "./product-metric.entity";
+import type { UserProductEvent } from './user-product-event.entity';
 
 export interface ProductMetricRepository {
   findByProducts(productIds: number[]): Promise<ProductMetric[]>;
@@ -7,6 +8,7 @@ export interface ProductMetricRepository {
    * and (popularityNextRecalcAt < now or popularityLastCalculatedAt < now).
    */
   findDirtyForRecalc(limit: number): Promise<ProductMetric[]>;
+  increment(productId: number, column: ProductMetricIncrementableColumn): Promise<void>;
   update(metric: ProductMetric): Promise<void>;
 }
 

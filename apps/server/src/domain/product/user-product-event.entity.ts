@@ -1,3 +1,5 @@
+import type { ProductMetricIncrementableColumn } from './product-metric.entity';
+
 /** Event type for user/visitor product interactions. */
 export type UserProductEventType = "view" | "cart_add" | "favorite";
 
@@ -45,5 +47,16 @@ export class UserProductEvent {
       ...props,
       createdAt: now,
     });
+  }
+
+  public getIncrementableMetricColumn(): ProductMetricIncrementableColumn | null {
+    switch (this.eventType) {
+      case "view":
+        return "viewsCount";
+      case "cart_add":
+        return "cartAddsCount";
+      default:
+        return null;
+    }
   }
 }

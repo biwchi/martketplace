@@ -13,6 +13,7 @@ export interface CreateProductMetricProps {
 }
 
 export interface ProductMetricProps extends CreateProductMetricProps { }
+export type ProductMetricIncrementableColumn = "viewsCount" | "cartAddsCount" | "reviewsCount" | "ratingSum" | "ratingCount";
 
 const validateProductMetricData = (data: CreateProductMetricProps): void => {
   if (data.productId <= 0) {

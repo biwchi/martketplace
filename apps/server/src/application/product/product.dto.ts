@@ -1,4 +1,8 @@
-import type { ProductAttributeValue, ProductStatus } from "@domain/product";
+import type {
+  ProductAttributeValue,
+  ProductStatus,
+  UserProductEventType,
+} from "@domain/product";
 
 export interface ProductAttributeInputDto {
   attributeId: number;
@@ -50,4 +54,13 @@ export interface GetPersonalFeedInputDto {
   limit?: number;
   /** Page number into the personalized feed. Defaults to 1. */
   page?: number;
+}
+
+export interface CreateUserProductEventInputDto {
+  visitorId: string;
+  /** User id if authenticated. */
+  userId?: number;
+  productId: number;
+  categoryId: number;
+  eventType: UserProductEventType;
 }

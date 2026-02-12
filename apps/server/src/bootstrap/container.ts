@@ -14,11 +14,13 @@ import type {
   ProductAttributeValueRepository,
   ProductMetricRepository,
   ProductRepository,
+  UserProductEventRepository,
 } from "@domain/product";
 import {
   PRODUCT_ATTRIBUTE_VALUE_REPOSITORY_TOKEN,
   PRODUCT_METRIC_REPOSITORY_TOKEN,
   PRODUCT_REPOSITORY_TOKEN,
+  USER_PRODUCT_EVENT_REPOSITORY_TOKEN,
 } from "@domain/product";
 import type { RefreshTokenRepository } from "@domain/auth";
 import { REFRESH_TOKEN_REPOSITORY_TOKEN } from "@domain/auth";
@@ -40,6 +42,7 @@ import {
   PgProductAttributeValueRepository,
   PgProductMetricRepository,
   PgProductRepository,
+  PgUserProductEventRepository,
   PgRefreshTokenRepository,
   PgSellerRepository,
   PgPreferencesProfileRepository,
@@ -74,6 +77,12 @@ export const container = new Container({
  * barrels) as the runtime token for Inversify.
  */
 export function configureContainer(): Container {
+  // Application ports
+  container
+    .bind<CachePort>(CACHE_PORT_TOKEN)
+    .to(RedisCacheAdapter)
+    .inSingletonScope();
+
   // User
   container
     .bind<UserRepository>(USER_REPOSITORY_TOKEN)
@@ -103,6 +112,11 @@ export function configureContainer(): Container {
     .to(PgProductAttributeValueRepository)
     .inSingletonScope();
 
+  container
+    .bind<UserProductEventRepository>(USER_PRODUCT_EVENT_REPOSITORY_TOKEN)
+    .to(PgUserProductEventRepository)
+    .inSingletonScope();
+
   // Category
   container
     .bind<CategoryRepository>(CATEGORY_REPOSITORY_TOKEN)
@@ -124,12 +138,6 @@ export function configureContainer(): Container {
   container
     .bind<RefreshTokenRepository>(REFRESH_TOKEN_REPOSITORY_TOKEN)
     .to(PgRefreshTokenRepository)
-    .inSingletonScope();
-
-  // Application ports
-  container
-    .bind<CachePort>(CACHE_PORT_TOKEN)
-    .to(RedisCacheAdapter)
     .inSingletonScope();
 
   return container;

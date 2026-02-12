@@ -7,4 +7,5 @@ export * from "./product-attribute-value.schema";
 export * from "./category.schema";
 export * from "./category-attribute.schema";
 export * from "./seller.schema";
+export * from "./user-product-event.schema";
 
