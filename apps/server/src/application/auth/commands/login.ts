@@ -28,7 +28,7 @@ import {
 
 export type LoginError =
   | "invalid-credentials"
-  | "user-not-found";
+  | "email-not-found";
 
 @injectable()
 export class Login {
@@ -49,7 +49,7 @@ export class Login {
     const user = await this.userRepository.findByEmail(input.email);
 
     if (!user) {
-      return err("user-not-found");
+      return err("email-not-found");
     }
 
     const passwordMatches = await this.passwordHasher.compare(

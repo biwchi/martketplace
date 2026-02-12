@@ -1,0 +1,74 @@
+---
+description: HTTP infrastructure layer with Elysia, controllers, and shared error handling
+globs: apps/server/src/infrastructure/http/**/*.ts
+alwaysApply: false
+---
+
+## HTTP Infrastructure Layer
+
+- **Purpose**: Expose application use cases over HTTP using Elysia, keep transport logic thin, and centralize error handling and OpenAPI docs.
+- **Location**: `apps/server/src/infrastructure/http/**`.
+- **Dependencies direction**: HTTP layer may depend on `@application/*` and `@shared/*`, but never on `@domain/*` directly.
+
+### Entry point and composition
+
+- **Entry**: `setupHttp` in `infrastructure/http/setup.ts` builds the HTTP app:
+  - Creates feature controllers (e.g. `createAuthController`) and injects their dependencies.
+  - Applies global plugins: `openapi`, `cors`, and the shared `errorsHandler`.
+  - Registers controllers under the `/api` group (e.g. `/api/auth/login`).
+- **Rule**: Do not do business logic or DI wiring here—only compose already-wired use cases provided via `dependencies`.
+
+## Controllers
+
+- **Pattern**: Each feature has a factory `create<Feature>Controller(dependencies)` that returns an `Elysia` instance with a `prefix`.
+- **Example**: `createAuthController` under `controllers/auth` is the canonical example of a correct implementation.
+  - Accepts injected use cases (`login`, `signup`, `logout`, `refreshToken`).
+  - Defines routes using `.post('/path', handler, { body, response, detail, tags })`.
+  - Uses application use cases by calling `<useCase>.execute(body)` and mapping `Result` errors to HTTP status codes.
+  - Documents responses with Elysia `t.*` schemas and reuses `errorResponseSchema` for error shapes.
+
+### Implementing a new controller
+
+- **Where**: Add controllers under `infrastructure/http/controllers/<feature>/`.
+- **Factory signature**:
+  - Export `create<Feature>Controller(dependencies: { ...use cases... })`.
+  - Return `new Elysia({ prefix: '/<feature>' })` with route definitions.
+- **Route handlers**:
+  - Take typed `body`/`params` from Elysia, call a single use case, and map `Result` variants to `status(<code>, <payload>)`.
+  - Do not place domain or application business logic in controllers—only orchestration and mapping.
+- **Docs**:
+  - Keep route descriptions and tags in a separate `*.docs.ts` file.
+  - Use those docs in the controller `detail` config, following the auth controller pattern.
+
+## Shared HTTP types and errors (`/http/shared`)
+
+- **Schemas**:
+  - `errorResponseSchema` defines the canonical error response payload using `t.Object({ type, summary, status, detail?, cause?, stack? })`.
+  - Controllers should reuse this schema (or `t.Pick` slices of it) in their `response` definitions instead of redefining error shapes.
+- **Error classes**:
+  - Shared error classes like `UnauthorizedError` extend `Error` and are exported from `http/shared`.
+  - Throw these in controllers, middleware, or infrastructure when you want the global `errorsHandler` to produce a specific HTTP 4xx/5xx response.
+
+### Global errors handler
+
+- **Location**: `infrastructure/http/errors.ts`.
+- **Registration**: `setupHttp` adds `.use(errorsHandler)` before grouping controllers so it applies globally.
+- **Behavior**:
+  - Registers known error types via `.error({ ... })` (e.g. `UNAUTHORIZED`, `TOKEN_EXPIRED`, `JSON_WEB_TOKEN_ERROR`).
+  - Maps Elysia error `code` values to a normalized `ErrorResponse` (matching `errorResponseSchema`) and returns `status(response.status, response)`.
+  - For validation errors (`code === 'VALIDATION'`), it delegates to Elysia’s built-in detail response.
+- **How to use**:
+  - For generic or unhandled failures, throw or propagate an `Error` and let `errorsHandler` map it to a 500 response.
+  - For auth- or token-related failures, throw `UnauthorizedError`, `TokenExpiredError`, etc., so `errorsHandler` returns a 401 with a consistent JSON body.
+
+## Conventions and dos/don'ts
+
+- **Do**:
+  - Keep controllers thin: call application use cases, map results to HTTP, and define schemas/docs.
+  - Reuse `errorResponseSchema` and `ErrorResponse` when defining error responses and types.
+  - Add new shared HTTP errors or types in `http/shared` when multiple controllers need them.
+- **Don’t**:
+  - Don’t import `@infrastructure` from application or domain layers.
+  - Don’t embed business rules or persistence logic in controllers or the errors handler.
+  - Don’t define per-feature error response shapes that diverge from `errorResponseSchema` without a strong reason.
+
