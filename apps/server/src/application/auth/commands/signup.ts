@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import { injectable, inject } from "inversify";
 import { Result, err, ok } from "neverthrow";
 
@@ -54,7 +53,7 @@ export class Signup {
     }
 
     const now = new Date();
-    const passwordHash = await this.passwordHasher.hash(input.password);
+    const passwordHash = this.passwordHasher.hash(input.password);
 
     const user = User.create({
       id: NEW_ENTITY_ID,
@@ -75,7 +74,7 @@ export class Signup {
       { userId: createdUser.id },
       { expiresAt: refreshExpiresAt },
     );
-    const tokenHash = await this.refreshTokenHasher.hash(refreshTokenJwt);
+    const tokenHash = this.refreshTokenHasher.hash(refreshTokenJwt);
 
     await this.refreshTokenRepository.create(RefreshToken.create({
       id: NEW_ENTITY_ID,

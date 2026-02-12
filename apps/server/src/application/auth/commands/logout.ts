@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import { injectable, inject } from "inversify";
 import { Result, err, ok } from "neverthrow";
 
@@ -37,7 +36,7 @@ export class Logout {
       return err("invalid-token");
     }
 
-    const tokenHash = await this.refreshTokenHasher.hash(input.refreshToken);
+    const tokenHash = this.refreshTokenHasher.hash(input.refreshToken);
     const existingToken = await this.refreshTokenRepository.findByTokenHash(
       tokenHash,
     );

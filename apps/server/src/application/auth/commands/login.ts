@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import { injectable, inject } from "inversify";
 import { Result, err, ok } from "neverthrow";
 
@@ -52,7 +51,7 @@ export class Login {
       return err("email-not-found");
     }
 
-    const passwordMatches = await this.passwordHasher.compare(
+    const passwordMatches = this.passwordHasher.compare(
       input.password,
       user.passwordHash,
     );
@@ -73,7 +72,7 @@ export class Login {
       { userId: user.id },
       { expiresAt: refreshExpiresAt },
     );
-    const tokenHash = await this.refreshTokenHasher.hash(refreshTokenJwt);
+    const tokenHash = this.refreshTokenHasher.hash(refreshTokenJwt);
 
     await this.refreshTokenRepository.create(RefreshToken.create({
       id: NEW_ENTITY_ID,

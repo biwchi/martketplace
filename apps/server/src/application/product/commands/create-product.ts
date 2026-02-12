@@ -1,4 +1,4 @@
-import "reflect-metadata";
+
 import { injectable, inject } from "inversify";
 import { Result, err, ok } from "neverthrow";
 
@@ -56,7 +56,7 @@ export class CreateProduct {
     private readonly categoryAttributeRepository: CategoryAttributeRepository,
     @inject(PRODUCT_ATTRIBUTE_VALUE_REPOSITORY_TOKEN)
     private readonly productAttributeValueRepository: ProductAttributeValueRepository,
-  ) {}
+  ) { }
 
   async execute(input: CreateProductInputDto): Promise<Result<Product, CreateProductError>> {
     const user = await this.userRepository.findById(input.userId);

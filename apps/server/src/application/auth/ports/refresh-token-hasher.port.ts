@@ -1,5 +1,5 @@
 export interface RefreshTokenHasher {
-  hash(plain: string): Promise<string>;
+  hash(plain: string): string;
 }
 
 export const REFRESH_TOKEN_HASHER_PORT_TOKEN = Symbol.for(

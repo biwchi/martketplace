@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import { injectable, inject } from "inversify";
 import { Result, err, fromAsyncThrowable, ok } from "neverthrow";
 
@@ -50,7 +49,7 @@ export class RefreshAuthToken {
       return err("invalid-token");
     }
 
-    const tokenHash = await this.refreshTokenHasher.hash(input.refreshToken);
+    const tokenHash = this.refreshTokenHasher.hash(input.refreshToken);
     const existingToken = await this.refreshTokenRepository.findByTokenHash(
       tokenHash,
     );
@@ -77,7 +76,7 @@ export class RefreshAuthToken {
       { expiresAt: refreshExpiresAt },
     );
 
-    const newTokenHash = await this.refreshTokenHasher.hash(refreshTokenJwt);
+    const newTokenHash = this.refreshTokenHasher.hash(refreshTokenJwt);
     const newTokenEntity = RefreshToken.create({
       id: NEW_ENTITY_ID,
       userId: decoded.userId,

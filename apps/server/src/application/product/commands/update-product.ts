@@ -1,4 +1,4 @@
-import "reflect-metadata";
+
 import { injectable, inject } from "inversify";
 import { Result, err, ok } from "neverthrow";
 
@@ -57,7 +57,7 @@ export class UpdateProduct {
     private readonly categoryAttributeRepository: CategoryAttributeRepository,
     @inject(PRODUCT_ATTRIBUTE_VALUE_REPOSITORY_TOKEN)
     private readonly productAttributeValueRepository: ProductAttributeValueRepository,
-  ) {}
+  ) { }
 
   async execute(
     input: UpdateProductInputDto,

@@ -1,4 +1,4 @@
-import "reflect-metadata";
+
 import { injectable, inject } from "inversify";
 import { Result, err, ok } from "neverthrow";
 
