@@ -13,8 +13,20 @@ export const errorResponseSchema = t.Object({
 export type ErrorResponse = typeof errorResponseSchema.static
 
 export class UnauthorizedError extends Error {
-  constructor() {
-    super('Unauthorized')
+  constructor(message: string = 'Unauthorized') {
+    super(message)
     this.name = 'UnauthorizedError'
+  }
+}
+export class BadRequestError extends Error {
+  constructor(message: string = 'Bad Request') {
+    super(message)
+    this.name = 'BadRequestError'
+  }
+}
+export class ForbiddenError extends Error {
+  constructor(message: string = 'Forbidden') {
+    super(message)
+    this.name = 'ForbiddenError'
   }
 }

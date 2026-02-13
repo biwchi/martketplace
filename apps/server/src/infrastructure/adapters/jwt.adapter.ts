@@ -31,7 +31,23 @@ export class JwtAdapter implements JwtPort {
     );
   }
 
+  private verifyPayload(payload: unknown): { userId: number } | null {
+    if (typeof payload !== 'object' || payload === null) {
+      return null;
+    }
+
+    if (!('userId' in payload) || typeof payload.userId !== 'number') {
+      return null;
+    }
+
+    return { userId: payload.userId };
+  }
+
   public async verifyRefreshToken(token: string): Promise<{ userId: number } | null> {
-    return verify(token, this.refreshTokenSecret) as { userId: number } | null;
+    return this.verifyPayload(verify(token, this.refreshTokenSecret))
+  }
+
+  public async verifyAccessToken(token: string): Promise<{ userId: number } | null> {
+    return this.verifyPayload(verify(token, this.accessTokenSecret))
   }
 }

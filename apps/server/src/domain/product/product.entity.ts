@@ -1,22 +1,6 @@
-/**
- * Value of a single EAV attribute on a product.
- * Used for filtering and display; keys match CategoryAttribute.code within the product's category.
- */
 export type ProductAttributeValue = string | number | boolean;
-
-/** Product listing status. Only active products are listed and indexed. */
 export type ProductStatus = "draft" | "active";
 
-/** Props that can be updated on an existing product. */
-export interface UpdateProductProps {
-  name?: string;
-  description?: string;
-  price?: number;
-  slug?: string;
-  status?: ProductStatus;
-}
-
-/** Props required to create a product. Timestamps are set by the entity. */
 export interface CreateProductProps {
   id: number;
   sellerId: number;
@@ -27,6 +11,10 @@ export interface CreateProductProps {
   slug: string;
   status: ProductStatus;
 }
+
+export interface UpdateProductProps extends Partial<Pick<
+  ProductProps, "name" | "description" | "price" | "slug" | "status"
+>> { }
 
 export interface ProductProps extends CreateProductProps {
   createdAt: Date;

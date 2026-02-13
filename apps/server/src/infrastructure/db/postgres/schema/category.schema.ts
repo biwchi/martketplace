@@ -6,7 +6,7 @@ export const categories = pgTable("categories", {
   id: identity(),
   name: varchar().notNull(),
   slug: varchar().notNull(),
-  iconName: varchar().notNull(),
+  iconName: varchar(),
   parentId: integer(),
   ...timestamps(),
 });

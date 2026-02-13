@@ -64,3 +64,14 @@ export interface CreateUserProductEventInputDto {
   categoryId: number;
   eventType: UserProductEventType;
 }
+
+export interface ProductFeedItemDto {
+  id: number;
+  sellerId: number;
+  categoryId: number;
+  name: string;
+  description: string;
+  price: number;
+  ratingAvg: number | null;
+  reviewsCount: number;
+}

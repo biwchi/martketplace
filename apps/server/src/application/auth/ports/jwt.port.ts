@@ -12,6 +12,7 @@ export interface JwtPort {
     options: JwtSignOptions,
   ): Promise<string>;
   verifyRefreshToken(token: string): Promise<{ userId: number } | null>;
+  verifyAccessToken(token: string): Promise<{ userId: number } | null>;
 }
 
 export const JWT_PORT_TOKEN = Symbol.for("JwtPort");

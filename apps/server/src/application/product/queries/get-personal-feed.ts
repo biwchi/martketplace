@@ -18,7 +18,7 @@ import {
   USER_REPOSITORY_TOKEN,
 } from "@domain/user";
 
-import type { GetPersonalFeedInputDto } from "../product.dto";
+import type { GetPersonalFeedInputDto, ProductFeedItemDto } from "../product.dto";
 import { uniqueBy } from "@shared/utils/array";
 import {
   type CachePort,
@@ -74,7 +74,7 @@ export class GetPersonalFeed {
     private readonly cachePort: CachePort,
   ) { }
 
-  async execute(input: GetPersonalFeedInputDto): Promise<Result<Product[], GetPersonalFeedError>> {
+  async execute(input: GetPersonalFeedInputDto): Promise<Result<ProductFeedItemDto[], GetPersonalFeedError>> {
     if (input.limit && input.limit > MAX_LIMIT) {
       return err({ reason: "limit-too-large" });
     }
@@ -91,7 +91,16 @@ export class GetPersonalFeed {
     const candidates = await this.loadOrComputeCandidates(visitor, preferences);
     const paginated = await this.paginateAndRefill(visitor, candidates, preferences, input);
 
-    return ok(paginated);
+    return ok(paginated.map(({ product, metric }) => ({
+      id: product.id,
+      sellerId: product.sellerId,
+      categoryId: product.categoryId,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      ratingAvg: metric?.averageRating ?? null,
+      reviewsCount: metric?.reviewsCount ?? 0,
+    })));
   }
 
   private async resolveUserAndPreferences(visitor: Visitor): Promise<Result<
@@ -116,9 +125,9 @@ export class GetPersonalFeed {
   private async loadOrComputeCandidates(
     visitor: Visitor,
     preferences: PreferencesProfile | null,
-  ): Promise<Product[]> {
+  ): Promise<ProductWithMetric[]> {
     const cacheKey = getCandidatesCacheKey(visitor);
-    const cachedCandidates = await this.cachePort.get<Product[]>(cacheKey);
+    const cachedCandidates = await this.cachePort.get<ProductWithMetric[]>(cacheKey);
 
     if (cachedCandidates) {
       return cachedCandidates;
@@ -138,10 +147,10 @@ export class GetPersonalFeed {
 
   private async paginateAndRefill(
     visitor: Visitor,
-    candidates: Product[],
+    candidates: ProductWithMetric[],
     preferences: PreferencesProfile | null,
     pagination: { page?: number, limit?: number },
-  ): Promise<Product[]> {
+  ): Promise<ProductWithMetric[]> {
     const cacheKey = getCandidatesCacheKey(visitor);
     const { page = DEFAULT_PAGE, limit = DEFAULT_LIMIT } = pagination;
 
@@ -170,7 +179,7 @@ export class GetPersonalFeed {
   private async getFreshScoredCandidates(
     visitor: Visitor,
     preferences: PreferencesProfile | null,
-  ): Promise<Product[]> {
+  ): Promise<ProductWithMetric[]> {
     const freshCandidates = await this.getCandidates(visitor, preferences);
     const ids = freshCandidates.map(candidate => candidate.product.id);
 
@@ -250,7 +259,7 @@ export class GetPersonalFeed {
   private async scoreCandidates(
     candidates: ProductWithMetric[],
     preferences: PreferencesProfile | null,
-  ): Promise<Product[]> {
+  ): Promise<ProductWithMetric[]> {
     const scored = candidates.map(({ product, metric }) => {
       const popularityScore = metric?.popularityScore ?? 0;
       const freshnessScore = product.getFreshnessBoostScore();
@@ -268,11 +277,12 @@ export class GetPersonalFeed {
 
       return {
         product,
+        metric,
         score: popularityScore + personalizedScore + freshnessScore
       };
     });
 
     scored.sort((a, b) => b.score - a.score);
-    return scored.map((scored) => scored.product);
+    return scored.map(({ product, metric }) => ({ product, metric }));
   }
 }

@@ -61,7 +61,7 @@ export class UpdateProduct {
 
   async execute(
     input: UpdateProductInputDto,
-  ): Promise<Result<Product, UpdateProductError>> {
+  ): Promise<Result<void, UpdateProductError>> {
     const user = await this.userRepository.findById(input.userId);
     if (!user) {
       return err({ reason: "user-not-found" });
@@ -121,15 +121,15 @@ export class UpdateProduct {
       updateProps.status !== undefined;
 
     if (!hasProductUpdates) {
-      return ok(product);
+      return ok();
     }
 
     const { attributes: _, ...productUpdateProps } = updateProps;
 
-    const updated = await this.productRepository.update(
+    await this.productRepository.update(
       product.update(productUpdateProps),
     );
 
-    return ok(updated);
+    return ok();
   }
 }

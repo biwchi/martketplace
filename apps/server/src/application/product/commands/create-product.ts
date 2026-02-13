@@ -58,7 +58,7 @@ export class CreateProduct {
     private readonly productAttributeValueRepository: ProductAttributeValueRepository,
   ) { }
 
-  async execute(input: CreateProductInputDto): Promise<Result<Product, CreateProductError>> {
+  async execute(input: CreateProductInputDto): Promise<Result<void, CreateProductError>> {
     const user = await this.userRepository.findById(input.userId);
 
     if (!user) {
@@ -117,6 +117,6 @@ export class CreateProduct {
       attributeValues,
     );
 
-    return ok(created);
+    return ok();
   }
 }
