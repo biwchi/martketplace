@@ -1,6 +1,5 @@
-import { CryptoHasher } from 'bun';
-
+import { CryptoHasher } from 'bun'
 
 export function hash(value: string): string {
-  return new CryptoHasher('sha256').update(value).digest('hex');
+  return new CryptoHasher('sha256').update(value).digest('hex')
 }

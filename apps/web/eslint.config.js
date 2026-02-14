@@ -1,5 +1,3 @@
-//  @ts-check
+import config from '@marketplace/config-eslint/tanstack'
 
-import { tanstackConfig } from '@tanstack/eslint-config'
-
-export default [...tanstackConfig]
+export default config

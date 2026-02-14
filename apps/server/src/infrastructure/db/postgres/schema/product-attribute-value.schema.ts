@@ -1,15 +1,14 @@
-import { integer, jsonb, pgTable } from "drizzle-orm/pg-core";
+import { integer, jsonb, pgTable } from 'drizzle-orm/pg-core'
 
-import { products } from "./product.schema";
-import { categoryAttributes } from "./category-attribute.schema";
+import { categoryAttributes } from './category-attribute.schema'
+import { products } from './product.schema'
 
-export const productAttributeValues = pgTable("product_attribute_values", {
+export const productAttributeValues = pgTable('product_attribute_values', {
   productId: integer()
     .notNull()
-    .references(() => products.id, { onDelete: "cascade" }),
+    .references(() => products.id, { onDelete: 'cascade' }),
   categoryAttributeId: integer()
     .notNull()
-    .references(() => categoryAttributes.id, { onDelete: "cascade" }),
+    .references(() => categoryAttributes.id, { onDelete: 'cascade' }),
   value: jsonb().notNull(),
-});
-
+})

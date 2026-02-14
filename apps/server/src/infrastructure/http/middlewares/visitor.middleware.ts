@@ -1,15 +1,14 @@
-import Elysia from 'elysia';
-import { BadRequestError } from '../shared';
-import { isValidUUID } from '@shared/utils/uuid';
-import { InMemoryCache } from '@infrastructure/common';
-
+import { InMemoryCache } from '@infrastructure/common'
+import { isValidUUID } from '@shared/utils/uuid'
+import Elysia from 'elysia'
+import { BadRequestError } from '../shared'
 
 export const visitorMiddleware = new Elysia({ name: 'VisitorMiddleware' })
   .state({
     validUUIDs: new InMemoryCache<string>(60 * 15), // 15 minutes
   })
   .resolve(async ({ headers, store: { validUUIDs } }) => {
-    const visitorId = headers['x-visitor-id'];
+    const visitorId = headers['x-visitor-id']
 
     if (!visitorId) {
       throw new BadRequestError('Provide a valid visitor ID')
@@ -19,7 +18,7 @@ export const visitorMiddleware = new Elysia({ name: 'VisitorMiddleware' })
 
     if (cachedUUID) {
       return {
-        visitorId: cachedUUID
+        visitorId: cachedUUID,
       }
     }
 
@@ -30,7 +29,7 @@ export const visitorMiddleware = new Elysia({ name: 'VisitorMiddleware' })
     validUUIDs.set(visitorId, visitorId)
 
     return {
-      visitorId
+      visitorId,
     }
   })
-  .as('scoped');
+  .as('scoped')

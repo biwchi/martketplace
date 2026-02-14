@@ -1,19 +1,19 @@
-import { err, ok, type Result } from "neverthrow";
+import type { AttributeValueValidationErrorReason, CategoryAttribute } from '@domain/category'
 
-import type { CategoryAttribute } from "@domain/category";
-import type { ProductAttributeValueRow } from "@domain/product";
+import type { ProductAttributeValueRow } from '@domain/product'
 
-import type { ProductAttributeInputDto } from "./product.dto";
-import type { AttributeValueValidationErrorReason } from '@domain/category';
+import type { Result } from 'neverthrow'
+import type { ProductAttributeInputDto } from './product.dto'
+import { err, ok } from 'neverthrow'
 
 interface InvalidAttributeValue {
-  attributeId: number;
+  attributeId: number
   reason: AttributeValueValidationErrorReason
 }
 
 export interface InvalidProductAttributesError {
-  requiredIds: number[];
-  invalidValues: InvalidAttributeValue[];
+  requiredIds: number[]
+  invalidValues: InvalidAttributeValue[]
 }
 
 /**
@@ -25,47 +25,47 @@ export function validateProductAttributes(
   categoryAttributes: CategoryAttribute[],
   inputAttributes: ProductAttributeInputDto[],
 ): Result<ProductAttributeValueRow[], InvalidProductAttributesError> {
-  const attrById = new Map(categoryAttributes.map((a) => [a.id, a]));
+  const attrById = new Map(categoryAttributes.map(a => [a.id, a]))
   const requiredIds = new Set(
-    categoryAttributes.filter((a) => a.isRequired).map((a) => a.id),
-  );
+    categoryAttributes.filter(a => a.isRequired).map(a => a.id),
+  )
 
-  const inputByAttrId = new Map<number, ProductAttributeInputDto>();
-  const missingRequiredAttributeIds: number[] = [];
+  const inputByAttrId = new Map<number, ProductAttributeInputDto>()
+  const missingRequiredAttributeIds: number[] = []
 
   for (const a of inputAttributes) {
-    inputByAttrId.set(a.attributeId, a);
+    inputByAttrId.set(a.attributeId, a)
   }
 
   for (const id of requiredIds) {
     if (!inputByAttrId.has(id)) {
-      missingRequiredAttributeIds.push(id);
+      missingRequiredAttributeIds.push(id)
     }
   }
 
-  const invalidValues: InvalidAttributeValue[] = [];
-  const attributeValues: ProductAttributeValueRow[] = [];
+  const invalidValues: InvalidAttributeValue[] = []
+  const attributeValues: ProductAttributeValueRow[] = []
 
   for (const input of inputAttributes) {
-    const attr = attrById.get(input.attributeId);
+    const attr = attrById.get(input.attributeId)
 
     if (!attr) {
-      continue;
+      continue
     }
 
-    const validation = attr.isValidValue(input.value);
+    const validation = attr.isValidValue(input.value)
 
     if (validation.isErr()) {
       invalidValues.push({
         attributeId: input.attributeId,
         reason: validation.error,
-      });
+      })
     }
     else {
       attributeValues.push({
         categoryAttributeId: input.attributeId,
         value: input.value,
-      });
+      })
     }
   }
 
@@ -73,8 +73,8 @@ export function validateProductAttributes(
     return err({
       requiredIds: Array.from(requiredIds),
       invalidValues,
-    });
+    })
   }
 
-  return ok(attributeValues);
+  return ok(attributeValues)
 }

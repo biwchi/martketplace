@@ -1,39 +1,38 @@
 import type {
   CreateProduct,
-  UpdateProduct,
+  CreateUserProductEvent,
   DeleteProduct,
   GetPersonalFeed,
   RecalculateDirtyProductsPopularity,
-  CreateUserProductEvent,
-} from '@application/product';
-import type { Product } from '@domain/product';
-import Elysia, { status, t } from 'elysia';
+  UpdateProduct,
+} from '@application/product'
+import cron from '@elysiajs/cron'
 
-import { authMiddleware, deriveUserId, visitorMiddleware } from '@infrastructure/http/middlewares';
-import { errorResponseSchema } from '@infrastructure/http/shared';
+import { authMiddleware, deriveUserId, visitorMiddleware } from '@infrastructure/http/middlewares'
+import { errorResponseSchema } from '@infrastructure/http/shared'
 
+import Elysia, { status, t } from 'elysia'
 import {
   createProductBodySchema,
-  updateProductBodySchema,
-  productIdParamsSchema,
-  getPersonalFeedQuerySchema,
   createUserProductEventBodySchema,
+  getPersonalFeedQuerySchema,
   productFeedListSchema,
-} from './product.controller-schema';
+  productIdParamsSchema,
+  updateProductBodySchema,
+} from './product.controller-schema'
 import {
   productDescription,
   productSummary,
   productTags,
-} from './product.docs';
-import cron from '@elysiajs/cron';
+} from './product.docs'
 
 interface Dependencies {
-  createProduct: CreateProduct,
-  updateProduct: UpdateProduct,
-  deleteProduct: DeleteProduct,
-  getPersonalFeed: GetPersonalFeed,
-  recalculateDirtyProductsPopularity: RecalculateDirtyProductsPopularity,
-  createUserProductEvent: CreateUserProductEvent,
+  createProduct: CreateProduct
+  updateProduct: UpdateProduct
+  deleteProduct: DeleteProduct
+  getPersonalFeed: GetPersonalFeed
+  recalculateDirtyProductsPopularity: RecalculateDirtyProductsPopularity
+  createUserProductEvent: CreateUserProductEvent
 }
 
 export function createProductController(dependencies: Dependencies) {
@@ -44,37 +43,37 @@ export function createProductController(dependencies: Dependencies) {
     getPersonalFeed,
     recalculateDirtyProductsPopularity,
     createUserProductEvent,
-  } = dependencies;
+  } = dependencies
 
   return new Elysia({ prefix: '/products' })
     .use(visitorMiddleware)
-    .group('', (app) => app
+    .group('', app => app
       .use(authMiddleware)
       .post('/', async ({ body, userId }) => {
         const result = await createProduct.execute({
           userId,
           product: body,
-        });
+        })
 
         if (result.isErr()) {
-          const error = result.error;
+          const error = result.error
 
           switch (error.reason) {
             case 'user-not-found':
-              return status(404, { summary: 'User not found' });
+              return status(404, { summary: 'User not found' })
             case 'user-not-seller':
-              return status(403, { summary: 'User is not a seller' });
+              return status(403, { summary: 'User is not a seller' })
             case 'category-not-found':
-              return status(404, { summary: 'Category not found' });
+              return status(404, { summary: 'Category not found' })
             case 'invalid-product-attributes':
               return status(400, {
                 summary: 'Invalid product attributes',
                 detail: JSON.stringify(error.error),
-              });
+              })
           }
         }
 
-        return status(201);
+        return status(201)
       }, {
         body: createProductBodySchema,
         response: {
@@ -93,31 +92,31 @@ export function createProductController(dependencies: Dependencies) {
           userId,
           productId: params.id,
           product: body,
-        });
+        })
 
         if (result.isErr()) {
-          const error = result.error;
+          const error = result.error
 
           switch (error.reason) {
             case 'user-not-found':
-              return status(404, { summary: 'User not found' });
+              return status(404, { summary: 'User not found' })
             case 'user-not-seller':
-              return status(403, { summary: 'User is not a seller' });
+              return status(403, { summary: 'User is not a seller' })
             case 'product-not-found':
-              return status(404, { summary: 'Product not found' });
+              return status(404, { summary: 'Product not found' })
             case 'forbidden':
-              return status(403, { summary: 'You do not own this product' });
+              return status(403, { summary: 'You do not own this product' })
             case 'category-not-found':
-              return status(404, { summary: 'Category not found' });
+              return status(404, { summary: 'Category not found' })
             case 'invalid-product-attributes':
               return status(400, {
                 summary: 'Invalid product attributes',
                 detail: JSON.stringify(error.error),
-              });
+              })
           }
         }
 
-        return status(200);
+        return status(200)
       }, {
         params: productIdParamsSchema,
         body: updateProductBodySchema,
@@ -136,22 +135,22 @@ export function createProductController(dependencies: Dependencies) {
         const result = await deleteProduct.execute({
           userId,
           productId: params.id,
-        });
+        })
 
         if (result.isErr()) {
           switch (result.error) {
             case 'user-not-found':
-              return status(404, { summary: 'User not found' });
+              return status(404, { summary: 'User not found' })
             case 'user-not-seller':
-              return status(403, { summary: 'User is not a seller' });
+              return status(403, { summary: 'User is not a seller' })
             case 'product-not-found':
-              return status(404, { summary: 'Product not found' });
+              return status(404, { summary: 'Product not found' })
             case 'forbidden':
-              return status(403, { summary: 'You do not own this product' });
+              return status(403, { summary: 'You do not own this product' })
           }
         }
 
-        return status(204);
+        return status(204)
       }, {
         params: productIdParamsSchema,
         response: {
@@ -164,8 +163,7 @@ export function createProductController(dependencies: Dependencies) {
           description: productDescription.delete,
         },
         tags: productTags,
-      })
-    )
+      }))
     .use(deriveUserId)
     .get('/feed', async ({ query, visitorId, userId }) => {
       const result = await getPersonalFeed.execute({
@@ -173,18 +171,18 @@ export function createProductController(dependencies: Dependencies) {
         userId,
         page: query.page,
         limit: query.limit,
-      });
+      })
 
       if (result.isErr()) {
         switch (result.error.reason) {
           case 'user-not-found':
-            return status(404, { summary: 'User not found' });
+            return status(404, { summary: 'User not found' })
           case 'limit-too-large':
-            return status(400, { summary: 'Requested limit is too large' });
+            return status(400, { summary: 'Requested limit is too large' })
         }
       }
 
-      return status(200, result.value);
+      return status(200, result.value)
     }, {
       query: getPersonalFeedQuerySchema,
       response: {
@@ -202,19 +200,19 @@ export function createProductController(dependencies: Dependencies) {
       const result = await createUserProductEvent.execute({
         ...body,
         visitorId,
-        userId
-      });
+        userId,
+      })
 
       if (result.isErr()) {
         switch (result.error) {
           case 'user-not-found':
-            return status(404, { summary: 'User not found' });
+            return status(404, { summary: 'User not found' })
           case 'product-not-found':
-            return status(404, { summary: 'Product not found' });
+            return status(404, { summary: 'Product not found' })
         }
       }
 
-      return status(201);
+      return status(201)
     }, {
       body: createUserProductEventBodySchema,
       response: {
@@ -231,8 +229,7 @@ export function createProductController(dependencies: Dependencies) {
       name: 'Recalculate dirty products popularity',
       pattern: '*/10 * * * *',
       run: async () => {
-        await recalculateDirtyProductsPopularity.execute();
+        await recalculateDirtyProductsPopularity.execute()
       },
     }))
 }
-

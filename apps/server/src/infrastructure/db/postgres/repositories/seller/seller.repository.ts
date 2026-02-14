@@ -1,8 +1,9 @@
-import { eq } from "drizzle-orm";
+import type { SellerRepository } from '@domain/seller'
+import { Seller } from '@domain/seller'
 
-import { Seller, type SellerRepository } from "@domain/seller";
-import { db } from "@infrastructure/db/postgres/client";
-import { sellers } from "@infrastructure/db/postgres/schema";
+import { db } from '@infrastructure/db/postgres/client'
+import { sellers } from '@infrastructure/db/postgres/schema'
+import { eq } from 'drizzle-orm'
 
 export class PgSellerRepository implements SellerRepository {
   public async findByUserId(userId: number): Promise<Seller | null> {
@@ -10,10 +11,10 @@ export class PgSellerRepository implements SellerRepository {
       .select()
       .from(sellers)
       .where(eq(sellers.userId, userId))
-      .limit(1);
+      .limit(1)
 
     if (!row) {
-      return null;
+      return null
     }
 
     return Seller.create({
@@ -23,8 +24,6 @@ export class PgSellerRepository implements SellerRepository {
       status: row.status,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
-    });
+    })
   }
 }
-
-

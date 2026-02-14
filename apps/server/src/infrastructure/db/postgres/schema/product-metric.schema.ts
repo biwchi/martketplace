@@ -1,11 +1,11 @@
-import { boolean, integer, numeric, pgTable, timestamp } from "drizzle-orm/pg-core";
+import { boolean, integer, numeric, pgTable, timestamp } from 'drizzle-orm/pg-core'
 
-import { products } from "./product.schema";
+import { products } from './product.schema'
 
-export const productMetrics = pgTable("product_metrics", {
+export const productMetrics = pgTable('product_metrics', {
   productId: integer()
     .primaryKey()
-    .references(() => products.id, { onDelete: "cascade" }),
+    .references(() => products.id, { onDelete: 'cascade' }),
   viewsCount: integer().notNull(),
   cartAddsCount: integer().notNull(),
   reviewsCount: integer().notNull(),
@@ -15,5 +15,4 @@ export const productMetrics = pgTable("product_metrics", {
   popularityDirty: boolean().notNull().default(true),
   popularityLastCalculatedAt: timestamp({ withTimezone: true }),
   popularityNextRecalcAt: timestamp({ withTimezone: true }),
-});
-
+})

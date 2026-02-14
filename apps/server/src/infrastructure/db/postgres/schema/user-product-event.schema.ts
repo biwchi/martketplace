@@ -1,10 +1,10 @@
-import { integer, pgTable, varchar } from "drizzle-orm/pg-core";
+import { integer, pgTable, varchar } from 'drizzle-orm/pg-core'
 
-import { identity, timestamps } from "./schema.utils";
-import { products } from "./product.schema";
-import { users } from "./user.schema";
+import { products } from './product.schema'
+import { identity, timestamps } from './schema.utils'
+import { users } from './user.schema'
 
-export const userProductEvents = pgTable("user_product_events", {
+export const userProductEvents = pgTable('user_product_events', {
   id: identity(),
   userId: integer()
     .references(() => users.id),
@@ -13,7 +13,6 @@ export const userProductEvents = pgTable("user_product_events", {
     .notNull()
     .references(() => products.id),
   categoryId: integer().notNull(),
-  eventType: varchar({ enum: ["view", "cart_add", "favorite"] }).notNull(),
+  eventType: varchar({ enum: ['view', 'cart_add', 'favorite'] }).notNull(),
   ...timestamps(),
-});
-
+})

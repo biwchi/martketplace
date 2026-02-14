@@ -1,20 +1,20 @@
-import { t } from 'elysia';
+import { t } from 'elysia'
 
 const productStatusSchema = t.Union([
   t.Literal('draft'),
   t.Literal('active'),
-]);
+])
 
 const productAttributeValueSchema = t.Union([
   t.String(),
   t.Numeric(),
   t.Boolean(),
-]);
+])
 
 export const productAttributeSchema = t.Object({
   attributeId: t.Number(),
   value: productAttributeValueSchema,
-});
+})
 
 export const createProductBodySchema = t.Object({
   categoryId: t.Number(),
@@ -24,7 +24,7 @@ export const createProductBodySchema = t.Object({
   slug: t.String(),
   status: t.Optional(productStatusSchema),
   attributes: t.Array(productAttributeSchema),
-});
+})
 
 export const updateProductBodySchema = t.Object({
   name: t.Optional(t.String()),
@@ -33,16 +33,16 @@ export const updateProductBodySchema = t.Object({
   slug: t.Optional(t.String()),
   status: t.Optional(productStatusSchema),
   attributes: t.Optional(t.Array(productAttributeSchema)),
-});
+})
 
 export const productIdParamsSchema = t.Object({
   id: t.Number(),
-});
+})
 
 export const getPersonalFeedQuerySchema = t.Object({
   limit: t.Optional(t.Number()),
   page: t.Optional(t.Number()),
-});
+})
 
 export const createUserProductEventBodySchema = t.Object({
   productId: t.Number(),
@@ -52,7 +52,7 @@ export const createUserProductEventBodySchema = t.Object({
     t.Literal('cart_add'),
     t.Literal('favorite'),
   ]),
-});
+})
 
 export const productFeedItemSchema = t.Object({
   id: t.Number(),
@@ -63,6 +63,6 @@ export const productFeedItemSchema = t.Object({
   price: t.Numeric({ minimum: 0 }),
   ratingAvg: t.Nullable(t.Numeric({ minimum: 0, maximum: 5 })),
   reviewsCount: t.Number(),
-});
+})
 
-export const productFeedListSchema = t.Array(productFeedItemSchema);
+export const productFeedListSchema = t.Array(productFeedItemSchema)

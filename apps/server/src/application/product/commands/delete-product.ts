@@ -1,26 +1,29 @@
+import type { ProductRepository } from '@domain/product'
+import type { SellerRepository } from '@domain/seller'
+import type { UserRepository } from '@domain/user'
+import type { Result } from 'neverthrow'
 
-import { injectable, inject } from "inversify";
-import { Result, err, ok } from "neverthrow";
-
+import type { DeleteProductInputDto } from '../product.dto'
 import {
-  type UserRepository,
-  USER_REPOSITORY_TOKEN,
-} from "@domain/user";
-import {
-  type SellerRepository,
-  SELLER_REPOSITORY_TOKEN,
-} from "@domain/seller";
-import {
-  type ProductRepository,
   PRODUCT_REPOSITORY_TOKEN,
-} from "@domain/product";
-import type { DeleteProductInputDto } from "../product.dto";
 
-export type DeleteProductError =
-  | "user-not-found"
-  | "user-not-seller"
-  | "product-not-found"
-  | "forbidden";
+} from '@domain/product'
+import {
+  SELLER_REPOSITORY_TOKEN,
+
+} from '@domain/seller'
+import {
+  USER_REPOSITORY_TOKEN,
+
+} from '@domain/user'
+import { inject, injectable } from 'inversify'
+import { err, ok } from 'neverthrow'
+
+export type DeleteProductError
+  = | 'user-not-found'
+    | 'user-not-seller'
+    | 'product-not-found'
+    | 'forbidden'
 
 @injectable()
 export class DeleteProduct {
@@ -36,29 +39,29 @@ export class DeleteProduct {
   async execute(
     input: DeleteProductInputDto,
   ): Promise<Result<void, DeleteProductError>> {
-    const user = await this.userRepository.findById(input.userId);
+    const user = await this.userRepository.findById(input.userId)
 
     if (!user) {
-      return err("user-not-found");
+      return err('user-not-found')
     }
 
-    const seller = await this.sellerRepository.findByUserId(input.userId);
+    const seller = await this.sellerRepository.findByUserId(input.userId)
 
     if (!seller) {
-      return err("user-not-seller");
+      return err('user-not-seller')
     }
 
-    const product = await this.productRepository.findById(input.productId);
+    const product = await this.productRepository.findById(input.productId)
 
     if (!product) {
-      return err("product-not-found");
+      return err('product-not-found')
     }
 
     if (product.sellerId !== seller.id) {
-      return err("forbidden");
+      return err('forbidden')
     }
 
-    await this.productRepository.delete(product.id);
-    return ok(undefined);
+    await this.productRepository.delete(product.id)
+    return ok(undefined)
   }
 }

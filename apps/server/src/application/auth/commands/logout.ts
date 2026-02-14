@@ -1,20 +1,22 @@
-import { injectable, inject } from "inversify";
-import { Result, err, ok } from "neverthrow";
+import type { JwtPort, LogoutInputDto, RefreshTokenHasher } from '@application/auth'
+import type { RefreshTokenRepository } from '@domain/auth'
+import type { Result } from 'neverthrow'
 
 import {
-  type RefreshTokenRepository,
-  REFRESH_TOKEN_REPOSITORY_TOKEN,
-} from "@domain/auth";
-
-import {
-  type JwtPort,
-  type LogoutInputDto,
-  type RefreshTokenHasher,
   JWT_PORT_TOKEN,
-  REFRESH_TOKEN_HASHER_PORT_TOKEN,
-} from "@application/auth";
 
-export type LogoutError = "invalid-token" | "token-not-found";
+  REFRESH_TOKEN_HASHER_PORT_TOKEN,
+
+} from '@application/auth'
+import {
+  REFRESH_TOKEN_REPOSITORY_TOKEN,
+
+} from '@domain/auth'
+
+import { inject, injectable } from 'inversify'
+import { err, ok } from 'neverthrow'
+
+export type LogoutError = 'invalid-token' | 'token-not-found'
 
 @injectable()
 export class Logout {
@@ -30,24 +32,23 @@ export class Logout {
   async execute(
     input: LogoutInputDto,
   ): Promise<Result<null, LogoutError>> {
-    const decoded = await this.jwt.verifyRefreshToken(input.refreshToken);
+    const decoded = await this.jwt.verifyRefreshToken(input.refreshToken)
 
     if (!decoded) {
-      return err("invalid-token");
+      return err('invalid-token')
     }
 
-    const tokenHash = this.refreshTokenHasher.hash(input.refreshToken);
+    const tokenHash = this.refreshTokenHasher.hash(input.refreshToken)
     const existingToken = await this.refreshTokenRepository.findByTokenHash(
       tokenHash,
-    );
+    )
 
     if (!existingToken) {
-      return err("token-not-found");
+      return err('token-not-found')
     }
 
-    await this.refreshTokenRepository.deleteByTokenHash(tokenHash);
+    await this.refreshTokenRepository.deleteByTokenHash(tokenHash)
 
-    return ok(null);
+    return ok(null)
   }
 }
-

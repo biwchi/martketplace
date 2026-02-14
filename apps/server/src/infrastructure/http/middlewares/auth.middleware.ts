@@ -1,14 +1,14 @@
-import Elysia, { InternalServerError, } from 'elysia';
-import { UnauthorizedError } from '../shared/errors';
-import type { HttpStore } from '../setup';
-import { err, ok, type Result } from 'neverthrow';
-import type { JwtPort } from '@application/auth';
-
+import type { JwtPort } from '@application/auth'
+import type { Result } from 'neverthrow'
+import type { HttpStore } from '../setup'
+import Elysia, { InternalServerError } from 'elysia'
+import { err, ok } from 'neverthrow'
+import { UnauthorizedError } from '../shared/errors'
 
 type ValidationResult = Result<{ userId: number }, 'unauthorized' | 'invalid-token'>
 
 async function validate(jwt: JwtPort, headers: Record<string, string | undefined>): Promise<ValidationResult> {
-  const authorization = headers['authorization']
+  const authorization = headers.authorization
   const [type, token] = authorization?.split(' ') ?? []
 
   if (type !== 'Bearer' || !token) {
@@ -22,7 +22,9 @@ async function validate(jwt: JwtPort, headers: Record<string, string | undefined
     }
 
     return ok({ userId: result.userId })
-  } catch (error) {
+  }
+  // eslint-disable-next-line unused-imports/no-unused-vars
+  catch (_error) {
     return err('invalid-token')
   }
 }
@@ -64,4 +66,4 @@ export const deriveUserId = new Elysia({ name: 'DeriveUserId' })
       userId: result.isOk() ? result.value.userId : undefined,
     }
   })
-  .as('scoped');
+  .as('scoped')

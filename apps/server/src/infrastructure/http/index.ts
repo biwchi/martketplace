@@ -1,1 +1,1 @@
-export { setupHttp } from './setup';
+export { setupHttp } from './setup'

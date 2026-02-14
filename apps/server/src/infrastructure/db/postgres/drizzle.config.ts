@@ -1,14 +1,13 @@
-import { defineConfig } from "drizzle-kit";
+import { defineConfig } from 'drizzle-kit'
 
-import { drizzleCommonConfig, drizzleKitConfig, pgConfig } from "./db.config";
+import { drizzleCommonConfig, drizzleKitConfig, pgConfig } from './db.config'
 
 export default defineConfig({
-  dialect: "postgresql",
+  dialect: 'postgresql',
   schema: drizzleKitConfig.schema,
   out: drizzleKitConfig.out,
   casing: drizzleCommonConfig.casing,
   dbCredentials: {
     url: pgConfig.connectionString,
   },
-});
-
+})

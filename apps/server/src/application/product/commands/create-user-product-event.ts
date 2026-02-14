@@ -1,25 +1,27 @@
-import { injectable, inject } from "inversify";
-import { Result, err, ok } from "neverthrow";
+import type { ProductMetricRepository, ProductRepository, UserProductEventRepository } from '@domain/product'
+import type { UserRepository } from '@domain/user'
 
-import { NEW_ENTITY_ID } from "@domain/common";
+import type { Result } from 'neverthrow'
+import type { CreateUserProductEventInputDto } from '../product.dto'
+import { NEW_ENTITY_ID } from '@domain/common'
 import {
-  UserProductEvent,
-  type UserProductEventRepository,
-  USER_PRODUCT_EVENT_REPOSITORY_TOKEN,
-  type ProductMetricRepository,
   PRODUCT_METRIC_REPOSITORY_TOKEN,
-  type ProductRepository,
   PRODUCT_REPOSITORY_TOKEN,
-} from "@domain/product";
+
+  USER_PRODUCT_EVENT_REPOSITORY_TOKEN,
+  UserProductEvent,
+
+} from '@domain/product'
 import {
-  Visitor,
-  type UserRepository,
   USER_REPOSITORY_TOKEN,
-} from "@domain/user";
 
-import type { CreateUserProductEventInputDto } from "../product.dto";
+  Visitor,
+} from '@domain/user'
 
-export type CreateUserProductEventError = "user-not-found" | "product-not-found";
+import { inject, injectable } from 'inversify'
+import { err, ok } from 'neverthrow'
+
+export type CreateUserProductEventError = 'user-not-found' | 'product-not-found'
 
 @injectable()
 export class CreateUserProductEvent {
@@ -35,22 +37,22 @@ export class CreateUserProductEvent {
   ) { }
 
   async execute(input: CreateUserProductEventInputDto): Promise<Result<void, CreateUserProductEventError>> {
-    const product = await this.productRepository.findById(input.productId);
+    const product = await this.productRepository.findById(input.productId)
     if (!product) {
-      return err("product-not-found");
+      return err('product-not-found')
     }
 
     const visitor = Visitor.create({
       visitorId: input.visitorId,
       userId: input.userId,
-    });
+    })
 
     const user = visitor.userId
       ? await this.userRepository.findById(visitor.userId)
-      : null;
+      : null
 
     if (visitor.userId && !user) {
-      return err("user-not-found");
+      return err('user-not-found')
     }
 
     const event = UserProductEvent.create({
@@ -60,16 +62,15 @@ export class CreateUserProductEvent {
       productId: input.productId,
       categoryId: input.categoryId,
       eventType: input.eventType,
-    });
+    })
 
-    await this.userProductEventRepository.create(event);
+    await this.userProductEventRepository.create(event)
 
-    const column = event.getIncrementableMetricColumn();
+    const column = event.getIncrementableMetricColumn()
     if (column) {
-      await this.productMetricRepository.increment(input.productId, column);
+      await this.productMetricRepository.increment(input.productId, column)
     }
 
-    return ok(undefined);
+    return ok(undefined)
   }
 }
-

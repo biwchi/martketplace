@@ -5,7 +5,7 @@ export const productSummary = {
   getPersonalFeed: 'Get personalized product feed',
   createUserEvent: 'Track a user product event',
   recalculatePopularity: 'Recalculate popularity for dirty products',
-};
+}
 
 export const productDescription = {
   create: 'Create a new product for the authenticated seller, including category-specific attributes.',
@@ -14,7 +14,6 @@ export const productDescription = {
   getPersonalFeed: 'Return a personalized product feed for a visitor or user based on preferences and behavior.',
   createUserEvent: 'Track a user interaction with a product (e.g. view, click) to feed personalization and metrics.',
   recalculatePopularity: 'Recalculate popularity scores for products that are marked as dirty and need recalculation.',
-};
+}
 
-export const productTags = ['Products'];
-
+export const productTags = ['Products']

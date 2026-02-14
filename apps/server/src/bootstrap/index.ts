@@ -1,20 +1,20 @@
-import "reflect-metadata";
-
-import { setupHttp } from '@infrastructure/http'
-import { configureContainer } from './container'
 import { JWT_PORT_TOKEN, Login, Logout, RefreshAuthToken, Signup } from '@application/auth'
+
 import {
   CreateProduct,
-  UpdateProduct,
+  CreateUserProductEvent,
   DeleteProduct,
   GetPersonalFeed,
   RecalculateDirtyProductsPopularity,
-  CreateUserProductEvent,
+  UpdateProduct,
 } from '@application/product'
+import { setupHttp } from '@infrastructure/http'
+import { configureContainer } from './container'
+import 'reflect-metadata'
 
 const port = Bun.env.PORT ? Number(Bun.env.PORT) : 3000
 
-export const bootstrap = async () => {
+export async function bootstrap() {
   const container = configureContainer()
 
   setupHttp({
@@ -33,6 +33,6 @@ export const bootstrap = async () => {
       getPersonalFeed: container.get(GetPersonalFeed),
       recalculateDirtyProductsPopularity: container.get(RecalculateDirtyProductsPopularity),
       createUserProductEvent: container.get(CreateUserProductEvent),
-    }
+    },
   })
 }

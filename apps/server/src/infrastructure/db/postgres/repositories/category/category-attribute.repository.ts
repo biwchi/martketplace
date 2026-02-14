@@ -1,23 +1,24 @@
-import { eq } from "drizzle-orm";
-
+import type { CategoryAttributeRepository } from '@domain/category'
 import {
   CategoryAttribute,
-  type CategoryAttributeRepository,
-} from "@domain/category";
-import { db } from "@infrastructure/db/postgres/client";
-import { categoryAttributes } from "@infrastructure/db/postgres/schema";
+
+} from '@domain/category'
+
+import { db } from '@infrastructure/db/postgres/client'
+import { categoryAttributes } from '@infrastructure/db/postgres/schema'
+import { eq } from 'drizzle-orm'
 
 export class PgCategoryAttributeRepository
-  implements CategoryAttributeRepository {
+implements CategoryAttributeRepository {
   public async findByCategoryId(
     categoryId: number,
   ): Promise<CategoryAttribute[]> {
     const rows = await db
       .select()
       .from(categoryAttributes)
-      .where(eq(categoryAttributes.categoryId, categoryId));
+      .where(eq(categoryAttributes.categoryId, categoryId))
 
-    return rows.map((row) =>
+    return rows.map(row =>
       CategoryAttribute.create({
         id: row.id,
         categoryId: row.categoryId,
@@ -29,8 +30,6 @@ export class PgCategoryAttributeRepository
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
       }),
-    );
+    )
   }
 }
-
-

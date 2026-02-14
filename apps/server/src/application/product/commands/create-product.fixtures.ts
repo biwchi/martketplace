@@ -1,24 +1,23 @@
-import { vi } from "vitest";
-import { User } from "@domain/user";
-import { Seller } from "@domain/seller";
-import { Product } from "@domain/product";
-import type { UserRepository } from "@domain/user";
-import type { SellerRepository } from "@domain/seller";
-import type { ProductRepository } from "@domain/product";
 import type {
   CategoryAttributeRepository,
   CategoryRepository,
-} from "@domain/category";
-import { Category } from "@domain/category";
-import type { ProductAttributeValueRepository } from "@domain/product";
-import type { CreateProductInputDto, CreateProductProductDto } from "../product.dto";
+} from '@domain/category'
+import type { ProductAttributeValueRepository, ProductRepository } from '@domain/product'
+import type { SellerRepository } from '@domain/seller'
+import type { UserRepository } from '@domain/user'
+import type { CreateProductInputDto, CreateProductProductDto } from '../product.dto'
+import { Category } from '@domain/category'
+import { Product } from '@domain/product'
+import { Seller } from '@domain/seller'
+import { User } from '@domain/user'
+import { vi } from 'vitest'
 import {
+  AttributeId,
   createDefaultCategoryAttributes,
   createProductAttributeInput,
-  AttributeId,
-  SelectOptions,
   FixtureCategoryId,
-} from "../product-attributes.validator.fixtures";
+  SelectOptions,
+} from '../product-attributes.validator.fixtures'
 
 /** Stable IDs for tests. Use instead of magic numbers. */
 export const FixtureIds = {
@@ -27,32 +26,31 @@ export const FixtureIds = {
   CategoryId: FixtureCategoryId,
   /** ID returned by productRepository.create in mocks (simulates DB-assigned id). */
   CreatedProductId: 42,
-} as const;
+} as const
 
-const now = new Date();
+const now = new Date()
 
 const defaultProduct = {
   categoryId: FixtureIds.CategoryId,
-  name: "Fixture Product",
-  description: "Fixture description",
+  name: 'Fixture Product',
+  description: 'Fixture description',
   price: 9.99,
-  slug: "fixture-slug",
-  status: undefined as CreateProductInputDto["product"]["status"],
+  slug: 'fixture-slug',
+  status: undefined as CreateProductInputDto['product']['status'],
   attributes: [
-    createProductAttributeInput(AttributeId.RequiredString, "Cotton"),
+    createProductAttributeInput(AttributeId.RequiredString, 'Cotton'),
     createProductAttributeInput(AttributeId.RequiredSelect, SelectOptions[1]),
   ],
-};
+}
 
-
-type CreateProductInputOverrides = Partial<Omit<CreateProductInputDto, "product">> & {
+type CreateProductInputOverrides = Partial<Omit<CreateProductInputDto, 'product'>> & {
   product?: Partial<CreateProductProductDto>
-};
+}
 /** Build CreateProductInputDto with defaults. Override any field to extend. */
 export function createCreateProductInput(
   overrides: CreateProductInputOverrides = {},
 ): CreateProductInputDto {
-  const product = { ...defaultProduct, ...overrides.product };
+  const product = { ...defaultProduct, ...overrides.product }
   return {
     userId: overrides.userId ?? FixtureIds.UserId,
     product: {
@@ -64,49 +62,49 @@ export function createCreateProductInput(
       slug: product.slug ?? defaultProduct.slug,
       attributes: product.attributes ?? defaultProduct.attributes,
     },
-  };
+  }
 }
 
 /** Build a User for repository mocks. */
 export function createFixtureUser(
-  overrides: Partial<Parameters<typeof User.create>[0]> & Pick<Parameters<typeof User.create>[0], "id">,
+  overrides: Partial<Parameters<typeof User.create>[0]> & Pick<Parameters<typeof User.create>[0], 'id'>,
 ): User {
   return User.create({
     id: overrides.id,
-    email: overrides.email ?? "seller@example.com",
-    passwordHash: overrides.passwordHash ?? "hash",
+    email: overrides.email ?? 'seller@example.com',
+    passwordHash: overrides.passwordHash ?? 'hash',
     createdAt: overrides.createdAt ?? now,
     updatedAt: overrides.updatedAt ?? now,
-  });
+  })
 }
 
 /** Build a Seller for repository mocks. */
 export function createFixtureSeller(
-  overrides: Partial<Parameters<typeof Seller.create>[0]> & Pick<Parameters<typeof Seller.create>[0], "id" | "userId">,
+  overrides: Partial<Parameters<typeof Seller.create>[0]> & Pick<Parameters<typeof Seller.create>[0], 'id' | 'userId'>,
 ): Seller {
   return Seller.create({
     id: overrides.id ?? FixtureIds.SellerId,
     userId: overrides.userId ?? FixtureIds.UserId,
-    name: overrides.name ?? "Fixture Shop",
-    status: overrides.status ?? "active",
+    name: overrides.name ?? 'Fixture Shop',
+    status: overrides.status ?? 'active',
     createdAt: overrides.createdAt ?? now,
     updatedAt: overrides.updatedAt ?? now,
-  });
+  })
 }
 
 /** Build a Category for repository mocks. */
 export function createFixtureCategory(
   overrides: Partial<Parameters<typeof Category.create>[0]> & {
-    id: number;
+    id: number
   } = { id: FixtureIds.CategoryId },
 ): Category {
   return Category.create({
     id: overrides.id ?? FixtureIds.CategoryId,
-    name: overrides.name ?? "Fixture Category",
-    slug: overrides.slug ?? "fixture-category",
-    iconName: overrides.iconName ?? "folder",
+    name: overrides.name ?? 'Fixture Category',
+    slug: overrides.slug ?? 'fixture-category',
+    iconName: overrides.iconName ?? 'folder',
     parentId: overrides.parentId ?? null,
-  });
+  })
 }
 
 /** Build the Product as returned by productRepository.create (with persisted id). */
@@ -117,30 +115,30 @@ export function createFixtureProduct(
     id: overrides.id ?? FixtureIds.CreatedProductId,
     sellerId: overrides.sellerId ?? FixtureIds.SellerId,
     categoryId: overrides.categoryId ?? FixtureIds.CategoryId,
-    name: overrides.name ?? "Fixture Product",
-    description: overrides.description ?? "Fixture description",
+    name: overrides.name ?? 'Fixture Product',
+    description: overrides.description ?? 'Fixture description',
     price: overrides.price ?? 9.99,
-    slug: overrides.slug ?? "fixture-slug",
-    status: overrides.status ?? "draft",
-  });
+    slug: overrides.slug ?? 'fixture-slug',
+    status: overrides.status ?? 'draft',
+  })
 }
 
 /** Create mock repositories with success defaults. Override methods in tests as needed. */
 export function createMockRepositories(): {
-  userRepository: UserRepository;
-  sellerRepository: SellerRepository;
-  productRepository: ProductRepository;
-  categoryRepository: CategoryRepository;
-  categoryAttributeRepository: CategoryAttributeRepository;
-  productAttributeValueRepository: ProductAttributeValueRepository;
+  userRepository: UserRepository
+  sellerRepository: SellerRepository
+  productRepository: ProductRepository
+  categoryRepository: CategoryRepository
+  categoryAttributeRepository: CategoryAttributeRepository
+  productAttributeValueRepository: ProductAttributeValueRepository
 } {
-  const user = createFixtureUser({ id: FixtureIds.UserId });
+  const user = createFixtureUser({ id: FixtureIds.UserId })
   const seller = createFixtureSeller({
     id: FixtureIds.SellerId,
     userId: FixtureIds.UserId,
-  });
-  const category = createFixtureCategory({ id: FixtureIds.CategoryId });
-  const categoryAttributes = createDefaultCategoryAttributes();
+  })
+  const category = createFixtureCategory({ id: FixtureIds.CategoryId })
+  const categoryAttributes = createDefaultCategoryAttributes()
 
   return {
     userRepository: {
@@ -167,8 +165,8 @@ export function createMockRepositories(): {
           price: product.price,
           slug: product.slug,
           status: product.status,
-        });
-        return Promise.resolve(created);
+        })
+        return Promise.resolve(created)
       }),
       update: vi.fn(),
       delete: vi.fn(),
@@ -182,5 +180,5 @@ export function createMockRepositories(): {
     productAttributeValueRepository: {
       replaceForProduct: vi.fn().mockResolvedValue(undefined),
     },
-  };
+  }
 }

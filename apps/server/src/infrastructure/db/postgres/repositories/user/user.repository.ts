@@ -1,17 +1,19 @@
-import { eq } from "drizzle-orm";
+import type { UserRepository } from '@domain/user'
+import { User } from '@domain/user'
 
-import { User, type UserRepository } from "@domain/user";
-import { db } from "@infrastructure/db/postgres/client";
-import { users } from "@infrastructure/db/postgres/schema";
+import { db } from '@infrastructure/db/postgres/client'
+import { users } from '@infrastructure/db/postgres/schema'
+import { eq } from 'drizzle-orm'
 
-const mapRowToUser = (row: typeof users.$inferSelect): User =>
-  User.create({
+function mapRowToUser(row: typeof users.$inferSelect): User {
+  return User.create({
     id: row.id,
     email: row.email,
     passwordHash: row.passwordHash,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
-  });
+  })
+}
 
 export class PgUserRepository implements UserRepository {
   public async findById(id: number): Promise<User | null> {
@@ -19,13 +21,13 @@ export class PgUserRepository implements UserRepository {
       .select()
       .from(users)
       .where(eq(users.id, id))
-      .limit(1);
+      .limit(1)
 
     if (!row) {
-      return null;
+      return null
     }
 
-    return mapRowToUser(row);
+    return mapRowToUser(row)
   }
 
   public async findByEmail(email: string): Promise<User | null> {
@@ -33,13 +35,13 @@ export class PgUserRepository implements UserRepository {
       .select()
       .from(users)
       .where(eq(users.email, email))
-      .limit(1);
+      .limit(1)
 
     if (!row) {
-      return null;
+      return null
     }
 
-    return mapRowToUser(row);
+    return mapRowToUser(row)
   }
 
   public async create(user: User): Promise<User> {
@@ -49,14 +51,12 @@ export class PgUserRepository implements UserRepository {
         email: user.email,
         passwordHash: user.passwordHash,
       })
-      .returning();
+      .returning()
 
     if (!row) {
-      throw new Error("Failed to create user");
+      throw new Error('Failed to create user')
     }
 
-    return mapRowToUser(row);
+    return mapRowToUser(row)
   }
 }
-
-

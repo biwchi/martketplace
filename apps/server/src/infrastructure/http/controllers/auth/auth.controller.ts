@@ -1,20 +1,20 @@
-import type { Login, Logout, RefreshAuthToken, Signup } from '@application/auth';
-import Elysia, { status, t } from 'elysia';
+import type { Login, Logout, RefreshAuthToken, Signup } from '@application/auth'
+import { errorResponseSchema } from '@infrastructure/http/shared'
+import Elysia, { status, t } from 'elysia'
 import {
   authLoginSchema,
   authLogoutSchema,
   authRefreshTokenInputSchema,
   authSignupSchema,
   authTokensSchema,
-} from './auth.controller-schema';
-import { authDescription, authSummary, authTags } from './auth.docs';
-import { errorResponseSchema } from '@infrastructure/http/shared';
+} from './auth.controller-schema'
+import { authDescription, authSummary, authTags } from './auth.docs'
 
 interface Dependencies {
-  login: Login,
-  signup: Signup,
-  logout: Logout,
-  refreshToken: RefreshAuthToken,
+  login: Login
+  signup: Signup
+  logout: Logout
+  refreshToken: RefreshAuthToken
 }
 
 export function createAuthController(dependencies: Dependencies) {
@@ -23,11 +23,11 @@ export function createAuthController(dependencies: Dependencies) {
     signup,
     logout,
     refreshToken,
-  } = dependencies;
+  } = dependencies
 
   return new Elysia({ prefix: '/auth' })
     .post('/login', async ({ body }) => {
-      const result = await login.execute(body);
+      const result = await login.execute(body)
 
       if (result.isErr()) {
         switch (result.error) {
@@ -48,12 +48,12 @@ export function createAuthController(dependencies: Dependencies) {
       },
       detail: {
         summary: authSummary.login,
-        description: authDescription.login
+        description: authDescription.login,
       },
-      tags: authTags
+      tags: authTags,
     })
     .post('/signup', async ({ body }) => {
-      const result = await signup.execute(body);
+      const result = await signup.execute(body)
 
       if (result.isErr()) {
         switch (result.error) {
@@ -71,12 +71,12 @@ export function createAuthController(dependencies: Dependencies) {
       },
       detail: {
         summary: authSummary.signup,
-        description: authDescription.signup
+        description: authDescription.signup,
       },
-      tags: authTags
+      tags: authTags,
     })
     .post('/logout', async ({ body }) => {
-      const result = await logout.execute(body);
+      const result = await logout.execute(body)
 
       if (result.isErr()) {
         switch (result.error) {
@@ -95,12 +95,12 @@ export function createAuthController(dependencies: Dependencies) {
       },
       detail: {
         summary: authSummary.logout,
-        description: authDescription.logout
+        description: authDescription.logout,
       },
-      tags: authTags
+      tags: authTags,
     })
     .post('/refresh-token', async ({ body }) => {
-      const result = await refreshToken.execute(body);
+      const result = await refreshToken.execute(body)
 
       if (result.isErr()) {
         switch (result.error) {
@@ -122,8 +122,8 @@ export function createAuthController(dependencies: Dependencies) {
       },
       detail: {
         summary: authSummary.refreshToken,
-        description: authDescription.refreshToken
+        description: authDescription.refreshToken,
       },
-      tags: authTags
+      tags: authTags,
     })
 }

@@ -1,2 +1,1 @@
-export { createProductController } from './product.controller';
-
+export { createProductController } from './product.controller'

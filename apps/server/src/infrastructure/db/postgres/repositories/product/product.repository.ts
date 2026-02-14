@@ -1,18 +1,18 @@
-import { eq } from "drizzle-orm";
-
 import type {
-  ProductRepository,
   PopularProductsByCategoriesQueryOptions,
   PopularProductsPriceMatchedQueryOptions,
   PopularProductsQueryOptions,
+  ProductRepository,
   RecentlyViewedProductsQueryOptions,
-} from "@domain/product";
-import { Product } from "@domain/product";
-import { db } from "@infrastructure/db/postgres/client";
-import { products } from "@infrastructure/db/postgres/schema";
+} from '@domain/product'
 
-const mapRowToProduct = (row: typeof products.$inferSelect): Product =>
-  Product.create({
+import { Product } from '@domain/product'
+import { db } from '@infrastructure/db/postgres/client'
+import { products } from '@infrastructure/db/postgres/schema'
+import { eq } from 'drizzle-orm'
+
+function mapRowToProduct(row: typeof products.$inferSelect): Product {
+  return Product.create({
     id: row.id,
     sellerId: row.sellerId,
     categoryId: row.categoryId,
@@ -20,8 +20,9 @@ const mapRowToProduct = (row: typeof products.$inferSelect): Product =>
     description: row.description,
     price: Number(row.price),
     slug: row.slug,
-    status: row.status
-  });
+    status: row.status,
+  })
+}
 
 export class PgProductRepository implements ProductRepository {
   public async findById(id: number): Promise<Product | null> {
@@ -29,13 +30,13 @@ export class PgProductRepository implements ProductRepository {
       .select()
       .from(products)
       .where(eq(products.id, id))
-      .limit(1);
+      .limit(1)
 
     if (!row) {
-      return null;
+      return null
     }
 
-    return mapRowToProduct(row);
+    return mapRowToProduct(row)
   }
 
   public async create(product: Product): Promise<Product> {
@@ -50,13 +51,13 @@ export class PgProductRepository implements ProductRepository {
         slug: product.slug,
         status: product.status,
       })
-      .returning();
+      .returning()
 
     if (!row) {
-      throw new Error("Failed to create product");
+      throw new Error('Failed to create product')
     }
 
-    return mapRowToProduct(row);
+    return mapRowToProduct(row)
   }
 
   public async update(product: Product): Promise<Product> {
@@ -72,51 +73,50 @@ export class PgProductRepository implements ProductRepository {
         status: product.status,
       })
       .where(eq(products.id, product.id))
-      .returning();
+      .returning()
 
     if (!row) {
-      throw new Error("Failed to update product");
+      throw new Error('Failed to update product')
     }
 
-    return mapRowToProduct(row);
+    return mapRowToProduct(row)
   }
 
   public async delete(id: number): Promise<void> {
-    await db.delete(products).where(eq(products.id, id));
+    await db.delete(products).where(eq(products.id, id))
   }
 
   public async findPopularProducts(
-    options: PopularProductsQueryOptions,
+    _options: PopularProductsQueryOptions,
   ): Promise<Product[]> {
-    throw new Error("PgProductRepository.findPopularProducts not implemented");
+    throw new Error('PgProductRepository.findPopularProducts not implemented')
   }
 
   public async findPopularPriceMatchedProducts(
-    options: PopularProductsPriceMatchedQueryOptions,
+    _options: PopularProductsPriceMatchedQueryOptions,
   ): Promise<Product[]> {
     throw new Error(
-      "PgProductRepository.findPopularPriceMatchedProducts not implemented",
-    );
+      'PgProductRepository.findPopularPriceMatchedProducts not implemented',
+    )
   }
 
   public async findPopularProductsByCategories(
-    options: PopularProductsByCategoriesQueryOptions,
+    _options: PopularProductsByCategoriesQueryOptions,
   ): Promise<Product[]> {
     throw new Error(
-      "PgProductRepository.findPopularProductsByCategories not implemented",
-    );
+      'PgProductRepository.findPopularProductsByCategories not implemented',
+    )
   }
 
   public async findRecentlyViewedProducts(
-    options: RecentlyViewedProductsQueryOptions,
+    _options: RecentlyViewedProductsQueryOptions,
   ): Promise<Product[]> {
     throw new Error(
-      "PgProductRepository.findRecentlyViewedProducts not implemented",
-    );
+      'PgProductRepository.findRecentlyViewedProducts not implemented',
+    )
   }
 
   public async banProductsForVisitor(): Promise<void> {
-    throw new Error("PgProductRepository.banProductsForVisitor not implemented");
+    throw new Error('PgProductRepository.banProductsForVisitor not implemented')
   }
 }
-

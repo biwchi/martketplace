@@ -1,5 +1,4 @@
-
-import { t } from 'elysia';
+import { t } from 'elysia'
 
 export const errorResponseSchema = t.Object({
   type: t.String(),

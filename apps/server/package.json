@@ -1,22 +1,17 @@
 {
   "name": "server",
-  "module": "index.ts",
   "type": "module",
   "private": true,
+  "module": "index.ts",
   "scripts": {
     "test": "vitest run",
+    "lint": "eslint ./src --fix",
     "dev": "bun run src/main.ts",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:check": "drizzle-kit check",
     "db:import:ozon-categories": "bun run scripts/import-ozon-categories.ts"
-  },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@types/jsonwebtoken": "^9.0.10",
-    "drizzle-kit": "^0.31.9",
-    "vitest": "^3.0.5"
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -32,5 +27,12 @@
     "neverthrow": "^8.2.0",
     "pg": "^8.18.0",
     "reflect-metadata": "^0.2.2"
+  },
+  "devDependencies": {
+    "@marketplace/config-eslint": "workspace:*",
+    "@types/bun": "latest",
+    "@types/jsonwebtoken": "^9.0.10",
+    "drizzle-kit": "^0.31.9",
+    "vitest": "^3.0.5"
   }
 }

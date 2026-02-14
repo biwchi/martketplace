@@ -7,4 +7,3 @@ export const Route = createFileRoute('/')({
 function RouteComponent() {
   return <div>Hello "/"!</div>
 }
-

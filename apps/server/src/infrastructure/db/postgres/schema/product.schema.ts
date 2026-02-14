@@ -1,10 +1,10 @@
-import { integer, numeric, pgTable, text, varchar } from "drizzle-orm/pg-core";
+import { integer, numeric, pgTable, text, varchar } from 'drizzle-orm/pg-core'
 
-import { identity, timestamps } from "./schema.utils";
-import { categories } from "./category.schema";
-import { sellers } from './seller.schema';
+import { categories } from './category.schema'
+import { identity, timestamps } from './schema.utils'
+import { sellers } from './seller.schema'
 
-export const products = pgTable("products", {
+export const products = pgTable('products', {
   id: identity(),
   sellerId: integer().notNull().references(() => sellers.id),
   categoryId: integer()
@@ -14,7 +14,6 @@ export const products = pgTable("products", {
   description: text().notNull(),
   price: numeric().notNull(),
   slug: varchar().notNull(),
-  status: varchar({ enum: ["draft", "active"] }).notNull(),
+  status: varchar({ enum: ['draft', 'active'] }).notNull(),
   ...timestamps(),
-});
-
+})

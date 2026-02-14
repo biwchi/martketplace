@@ -1,9 +1,9 @@
 export {
   Seller,
-  type SellerStatus,
   type SellerProps,
-} from "./seller.entity";
+  type SellerStatus,
+} from './seller.entity'
 export {
-  type SellerRepository,
   SELLER_REPOSITORY_TOKEN,
-} from "./seller.repository";
+  type SellerRepository,
+} from './seller.repository'

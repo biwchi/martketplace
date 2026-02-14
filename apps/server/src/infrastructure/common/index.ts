@@ -1,1 +1,1 @@
-export { InMemoryCache } from './in-memory-cache';
+export { InMemoryCache } from './in-memory-cache'

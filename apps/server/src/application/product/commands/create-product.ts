@@ -1,45 +1,48 @@
-
-import { injectable, inject } from "inversify";
-import { Result, err, ok } from "neverthrow";
-
 import type {
   CategoryAttributeRepository,
   CategoryRepository,
-} from "@domain/category";
-import {
-  CATEGORY_ATTRIBUTE_REPOSITORY_TOKEN,
-  CATEGORY_REPOSITORY_TOKEN,
-} from "@domain/category";
-import { NEW_ENTITY_ID } from "@domain/common";
+} from '@domain/category'
 import type {
   ProductAttributeValueRepository,
   ProductRepository,
-} from "@domain/product";
+} from '@domain/product'
+import type { SellerRepository } from '@domain/seller'
+
+import type { UserRepository } from '@domain/user'
+import type { Result } from 'neverthrow'
+import type { InvalidProductAttributesError } from '../product-attributes.validator'
+import type { CreateProductInputDto } from '../product.dto'
+import {
+  CATEGORY_ATTRIBUTE_REPOSITORY_TOKEN,
+  CATEGORY_REPOSITORY_TOKEN,
+} from '@domain/category'
+import { NEW_ENTITY_ID } from '@domain/common'
 import {
   Product,
   PRODUCT_ATTRIBUTE_VALUE_REPOSITORY_TOKEN,
   PRODUCT_REPOSITORY_TOKEN,
-} from "@domain/product";
+} from '@domain/product'
 import {
-  type UserRepository,
-  USER_REPOSITORY_TOKEN,
-} from "@domain/user";
-import {
-  type SellerRepository,
   SELLER_REPOSITORY_TOKEN,
-} from "@domain/seller";
 
-import type { CreateProductInputDto } from "../product.dto";
+} from '@domain/seller'
 import {
-  validateProductAttributes,
-  type InvalidProductAttributesError,
-} from "../product-attributes.validator";
+  USER_REPOSITORY_TOKEN,
 
-export type CreateProductError =
-  | { reason: "user-not-found" }
-  | { reason: "user-not-seller" }
-  | { reason: "category-not-found" }
-  | { reason: "invalid-product-attributes"; error: InvalidProductAttributesError };
+} from '@domain/user'
+
+import { inject, injectable } from 'inversify'
+import { err, ok } from 'neverthrow'
+import {
+
+  validateProductAttributes,
+} from '../product-attributes.validator'
+
+export type CreateProductError
+  = | { reason: 'user-not-found' }
+    | { reason: 'user-not-seller' }
+    | { reason: 'category-not-found' }
+    | { reason: 'invalid-product-attributes', error: InvalidProductAttributesError }
 
 @injectable()
 export class CreateProduct {
@@ -59,45 +62,45 @@ export class CreateProduct {
   ) { }
 
   async execute(input: CreateProductInputDto): Promise<Result<void, CreateProductError>> {
-    const user = await this.userRepository.findById(input.userId);
+    const user = await this.userRepository.findById(input.userId)
 
     if (!user) {
-      return err({ reason: "user-not-found" });
+      return err({ reason: 'user-not-found' })
     }
 
-    const seller = await this.sellerRepository.findByUserId(input.userId);
+    const seller = await this.sellerRepository.findByUserId(input.userId)
 
     if (!seller) {
-      return err({ reason: "user-not-seller" });
+      return err({ reason: 'user-not-seller' })
     }
 
     const category = await this.categoryRepository.findById(
       input.product.categoryId,
-    );
+    )
 
     if (!category) {
-      return err({ reason: "category-not-found" });
+      return err({ reason: 'category-not-found' })
     }
 
-    const categoryAttributes =
-      await this.categoryAttributeRepository.findByCategoryId(
+    const categoryAttributes
+      = await this.categoryAttributeRepository.findByCategoryId(
         input.product.categoryId,
-      );
+      )
 
     const attributesValidationResult = validateProductAttributes(
       categoryAttributes,
       input.product.attributes,
-    );
+    )
 
     if (attributesValidationResult.isErr()) {
       return err({
-        reason: "invalid-product-attributes",
+        reason: 'invalid-product-attributes',
         error: attributesValidationResult.error,
-      });
+      })
     }
 
-    const attributeValues = attributesValidationResult.value;
-    const p = input.product;
+    const attributeValues = attributesValidationResult.value
+    const p = input.product
 
     const product = Product.create({
       id: NEW_ENTITY_ID,
@@ -107,16 +110,16 @@ export class CreateProduct {
       description: p.description,
       price: p.price,
       slug: p.slug,
-      status: p.status ?? "draft",
-    });
+      status: p.status ?? 'draft',
+    })
 
-    const created = await this.productRepository.create(product);
+    const created = await this.productRepository.create(product)
 
     await this.productAttributeValueRepository.replaceForProduct(
       created.id,
       attributeValues,
-    );
+    )
 
-    return ok();
+    return ok()
   }
 }

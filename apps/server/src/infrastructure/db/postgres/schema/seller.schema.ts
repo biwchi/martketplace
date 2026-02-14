@@ -1,15 +1,14 @@
-import { integer, pgTable, text, varchar } from "drizzle-orm/pg-core";
+import { integer, pgTable, varchar } from 'drizzle-orm/pg-core'
 
-import { identity, timestamps } from "./schema.utils";
-import { users } from "./user.schema";
+import { identity, timestamps } from './schema.utils'
+import { users } from './user.schema'
 
-export const sellers = pgTable("sellers", {
+export const sellers = pgTable('sellers', {
   id: identity(),
   userId: integer()
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => users.id, { onDelete: 'cascade' }),
   name: varchar().notNull(),
-  status: varchar({ enum: ["pending", "active", "suspended"] }).notNull(),
+  status: varchar({ enum: ['pending', 'active', 'suspended'] }).notNull(),
   ...timestamps(),
-});
-
+})

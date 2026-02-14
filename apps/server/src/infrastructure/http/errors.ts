@@ -1,7 +1,7 @@
-import Elysia, { status } from 'elysia';
-import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
-import { UnauthorizedError, type ErrorResponse } from './shared';
-
+import type { ErrorResponse } from './shared'
+import Elysia, { status } from 'elysia'
+import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken'
+import { UnauthorizedError } from './shared'
 
 export const errorsHandler = new Elysia()
   .error({
@@ -10,7 +10,7 @@ export const errorsHandler = new Elysia()
     JSON_WEB_TOKEN_ERROR: JsonWebTokenError,
   })
   .onError({ as: 'global' }, ({ code, error, request }) => {
-    let response: ErrorResponse = {
+    const response: ErrorResponse = {
       status: 500,
       type: 'error',
       summary: 'Internal server error',
@@ -55,11 +55,11 @@ export const errorsHandler = new Elysia()
           ? error.expected.join(', ')
           : error.expected}`
         break
-      // case 'PG_DATABASE_ERROR':
-      //   response.type = 'PgDatabaseError'
-      //   response.summary = error.message
-      //   response.stack = error.stack
-      //   response.cause = error.cause
+        // case 'PG_DATABASE_ERROR':
+        //   response.type = 'PgDatabaseError'
+        //   response.summary = error.message
+        //   response.stack = error.stack
+        //   response.cause = error.cause
 
       //   if (error.code) {
       //     response.detail = `Database error: ${error.code}`

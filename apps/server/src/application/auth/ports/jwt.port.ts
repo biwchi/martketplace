@@ -1,19 +1,18 @@
 export interface JwtSignOptions {
-  expiresAt: Date;
+  expiresAt: Date
 }
 
 export interface JwtPort {
-  signAccessToken(
+  signAccessToken: (
     payload: { userId: number },
     options: JwtSignOptions,
-  ): Promise<string>;
-  signRefreshToken(
+  ) => Promise<string>
+  signRefreshToken: (
     payload: { userId: number },
     options: JwtSignOptions,
-  ): Promise<string>;
-  verifyRefreshToken(token: string): Promise<{ userId: number } | null>;
-  verifyAccessToken(token: string): Promise<{ userId: number } | null>;
+  ) => Promise<string>
+  verifyRefreshToken: (token: string) => Promise<{ userId: number } | null>
+  verifyAccessToken: (token: string) => Promise<{ userId: number } | null>
 }
 
-export const JWT_PORT_TOKEN = Symbol.for("JwtPort");
-
+export const JWT_PORT_TOKEN = Symbol.for('JwtPort')

@@ -1,7 +1,7 @@
-import { Container } from "inversify";
-import { configureAdapters } from './container/configure-adapters';
-import { configureRepositories } from './container/configure-repositories';
-import { configureUseCases } from './container/configure-use-cases';
+import { Container } from 'inversify'
+import { configureAdapters } from './container/configure-adapters'
+import { configureRepositories } from './container/configure-repositories'
+import { configureUseCases } from './container/configure-use-cases'
 
 /**
  * Single, shared Inversify container for the backend.
@@ -14,13 +14,13 @@ import { configureUseCases } from './container/configure-use-cases';
  * dependencies by *interface type*, not by concrete class.
  */
 export const container = new Container({
-  defaultScope: "Transient",
-});
+  defaultScope: 'Transient',
+})
 
 export function configureContainer(): Container {
   configureAdapters()
   configureRepositories()
   configureUseCases()
 
-  return container;
+  return container
 }
